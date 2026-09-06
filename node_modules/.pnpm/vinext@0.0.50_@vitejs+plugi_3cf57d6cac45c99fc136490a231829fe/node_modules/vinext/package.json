@@ -1,0 +1,108 @@
+{
+  "name": "vinext",
+  "version": "0.0.50",
+  "description": "Run Next.js apps on Vite. Drop-in replacement for the next CLI.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudflare/vinext.git"
+  },
+  "bin": {
+    "vinext": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cache": {
+      "types": "./dist/cache.d.ts",
+      "import": "./dist/cache.js"
+    },
+    "./shims/*": {
+      "types": "./dist/shims/*.d.ts",
+      "import": "./dist/shims/*.js"
+    },
+    "./server/prod-server": {
+      "types": "./dist/server/prod-server.d.ts",
+      "import": "./dist/server/prod-server.js"
+    },
+    "./cloudflare": {
+      "types": "./dist/cloudflare/index.d.ts",
+      "import": "./dist/cloudflare/index.js"
+    },
+    "./server/image-optimization": {
+      "types": "./dist/server/image-optimization.d.ts",
+      "import": "./dist/server/image-optimization.js"
+    },
+    "./server/request-pipeline": {
+      "types": "./dist/server/request-pipeline.d.ts",
+      "import": "./dist/server/request-pipeline.js"
+    },
+    "./server/app-router-entry": {
+      "types": "./dist/server/app-router-entry.d.ts",
+      "import": "./dist/server/app-router-entry.js"
+    },
+    "./config/config-matchers": {
+      "types": "./dist/config/config-matchers.d.ts",
+      "import": "./dist/config/config-matchers.js"
+    },
+    "./server/worker-utils": {
+      "types": "./dist/server/worker-utils.d.ts",
+      "import": "./dist/server/worker-utils.js"
+    }
+  },
+  "dependencies": {
+    "@unpic/react": "^1.0.2",
+    "@vercel/og": "^0.8.6",
+    "image-size": "2.0.2",
+    "ipaddr.js": "^2.1.0",
+    "magic-string": "^0.30.21",
+    "vite-plugin-commonjs": "^0.10.4",
+    "vite-tsconfig-paths": "^6.1.1",
+    "web-vitals": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-rsc": "^0.5.23",
+    "react-server-dom-webpack": "^19.2.6",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.1.21",
+    "vite-plus": "0.1.21"
+  },
+  "peerDependencies": {
+    "@mdx-js/rollup": "^3.0.0",
+    "@vitejs/plugin-react": "^5.1.4 || ^6.0.0",
+    "@vitejs/plugin-rsc": "^0.5.23",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-server-dom-webpack": "^19.2.6",
+    "vite": "^7.0.0 || ^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@mdx-js/rollup": {
+      "optional": true
+    },
+    "@vitejs/plugin-rsc": {
+      "optional": true
+    },
+    "react-server-dom-webpack": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch"
+  }
+}

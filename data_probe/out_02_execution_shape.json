@@ -1,0 +1,219 @@
+{
+  "Q1_region_sales": {
+    "SqlExecution_fields": [
+      "columns",
+      "error",
+      "rows",
+      "sql",
+      "success"
+    ],
+    "success": true,
+    "error": null,
+    "columns": [
+      "region",
+      "销售额",
+      "订单数"
+    ],
+    "returned_row_count": 4,
+    "first_2_rows": [
+      {
+        "region": "西南",
+        "销售额": 4474287.0600000005,
+        "订单数": 47
+      },
+      {
+        "region": "华东",
+        "销售额": 4292183.75,
+        "订单数": 56
+      }
+    ],
+    "python_types_of_first_row": {
+      "region": "str",
+      "销售额": "float",
+      "订单数": "int"
+    },
+    "DatabaseQueryResult_json_keys": [
+      "columns",
+      "database",
+      "error",
+      "row_count",
+      "rows",
+      "sql",
+      "success"
+    ]
+  },
+  "Q2_target_vs_actual": {
+    "SqlExecution_fields": [
+      "columns",
+      "error",
+      "rows",
+      "sql",
+      "success"
+    ],
+    "success": true,
+    "error": null,
+    "columns": [
+      "region",
+      "实际销售额",
+      "销售目标"
+    ],
+    "returned_row_count": 4,
+    "first_2_rows": [
+      {
+        "region": "西南",
+        "实际销售额": 4474287.0600000005,
+        "销售目标": 1300000
+      },
+      {
+        "region": "华东",
+        "实际销售额": 4292183.75,
+        "销售目标": 2200000
+      }
+    ],
+    "python_types_of_first_row": {
+      "region": "str",
+      "实际销售额": "float",
+      "销售目标": "int"
+    },
+    "DatabaseQueryResult_json_keys": [
+      "columns",
+      "database",
+      "error",
+      "row_count",
+      "rows",
+      "sql",
+      "success"
+    ]
+  },
+  "Q3_raw_detail": {
+    "SqlExecution_fields": [
+      "columns",
+      "error",
+      "rows",
+      "sql",
+      "success"
+    ],
+    "success": true,
+    "error": null,
+    "columns": [
+      "order_id",
+      "region",
+      "category",
+      "order_amount",
+      "paid_amount",
+      "status",
+      "order_date"
+    ],
+    "returned_row_count": 200,
+    "first_2_rows": [
+      {
+        "order_id": 10001,
+        "region": "华南",
+        "category": "企业服务",
+        "order_amount": 64841.17,
+        "paid_amount": 58785.1,
+        "status": "已支付",
+        "order_date": "2026-08-05"
+      },
+      {
+        "order_id": 10002,
+        "region": "华南",
+        "category": "数据产品",
+        "order_amount": 39544.13,
+        "paid_amount": 39495.34,
+        "status": "已支付",
+        "order_date": "2026-08-18"
+      }
+    ],
+    "python_types_of_first_row": {
+      "order_id": "int",
+      "region": "str",
+      "category": "str",
+      "order_amount": "float",
+      "paid_amount": "float",
+      "status": "str",
+      "order_date": "str"
+    },
+    "DatabaseQueryResult_json_keys": [
+      "columns",
+      "database",
+      "error",
+      "row_count",
+      "rows",
+      "sql",
+      "success"
+    ]
+  },
+  "Q4_month_coverage": {
+    "SqlExecution_fields": [
+      "columns",
+      "error",
+      "rows",
+      "sql",
+      "success"
+    ],
+    "success": true,
+    "error": null,
+    "columns": [
+      "月份",
+      "订单数",
+      "销售额"
+    ],
+    "returned_row_count": 3,
+    "first_2_rows": [
+      {
+        "月份": "2026-06",
+        "订单数": 231,
+        "销售额": 14096078.760000002
+      },
+      {
+        "月份": "2026-07",
+        "订单数": 249,
+        "销售额": 16145060.579999998
+      }
+    ],
+    "python_types_of_first_row": {
+      "月份": "str",
+      "订单数": "int",
+      "销售额": "float"
+    },
+    "DatabaseQueryResult_json_keys": [
+      "columns",
+      "database",
+      "error",
+      "row_count",
+      "rows",
+      "sql",
+      "success"
+    ]
+  },
+  "Q5_bad_sql": {
+    "SqlExecution_fields": [
+      "columns",
+      "error",
+      "rows",
+      "sql",
+      "success"
+    ],
+    "success": false,
+    "error": "不允许使用SELECT *，必须明确列出查询字段",
+    "columns": [],
+    "returned_row_count": 0,
+    "first_2_rows": [],
+    "python_types_of_first_row": {},
+    "DatabaseQueryResult_json_keys": [
+      "columns",
+      "database",
+      "error",
+      "row_count",
+      "rows",
+      "sql",
+      "success"
+    ]
+  },
+  "truncation_check": {
+    "actual_table_rows": 240,
+    "rows_returned": 200,
+    "any_truncation_flag_in_result": []
+  }
+}

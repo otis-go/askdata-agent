@@ -1,0 +1,753 @@
+[
+  {
+    "file": "customers.csv",
+    "row_count": 30,
+    "column_count": 4,
+    "columns": {
+      "customer_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 30,
+        "inferred_kind": "numeric",
+        "samples": [
+          "101",
+          "102",
+          "103",
+          "104",
+          "105"
+        ],
+        "min": 101.0,
+        "max": 130.0,
+        "sum": 3465.0,
+        "avg": 115.5,
+        "zero_count": 0
+      },
+      "customer_name": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 30,
+        "inferred_kind": "text",
+        "samples": [
+          "远景集团",
+          "云帆零售",
+          "星河科技",
+          "海岳集团",
+          "北辰制造"
+        ]
+      },
+      "customer_level": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 3,
+        "inferred_kind": "text",
+        "samples": [
+          "普通客户",
+          "战略客户",
+          "重点客户"
+        ],
+        "value_counts": {
+          "普通客户": 14,
+          "战略客户": 9,
+          "重点客户": 7
+        }
+      },
+      "region": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "华东",
+          "华南",
+          "华北",
+          "西南"
+        ],
+        "value_counts": {
+          "华东": 8,
+          "华南": 8,
+          "华北": 7,
+          "西南": 7
+        }
+      }
+    },
+    "head_3": [
+      {
+        "customer_id": "101",
+        "customer_name": "远景集团",
+        "customer_level": "战略客户",
+        "region": "华东"
+      },
+      {
+        "customer_id": "102",
+        "customer_name": "云帆零售",
+        "customer_level": "普通客户",
+        "region": "华南"
+      },
+      {
+        "customer_id": "103",
+        "customer_name": "星河科技",
+        "customer_level": "重点客户",
+        "region": "华北"
+      }
+    ]
+  },
+  {
+    "file": "orders_current.csv",
+    "row_count": 240,
+    "column_count": 9,
+    "columns": {
+      "order_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 240,
+        "inferred_kind": "numeric",
+        "samples": [
+          "10001",
+          "10002",
+          "10003",
+          "10004",
+          "10005"
+        ],
+        "min": 10001.0,
+        "max": 10240.0,
+        "sum": 2428920.0,
+        "avg": 10120.5,
+        "zero_count": 0
+      },
+      "region": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "华东",
+          "华南",
+          "华北",
+          "西南"
+        ],
+        "value_counts": {
+          "华东": 70,
+          "华南": 65,
+          "华北": 54,
+          "西南": 51
+        }
+      },
+      "category": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "企业服务",
+          "安全服务",
+          "智能硬件",
+          "数据产品"
+        ],
+        "value_counts": {
+          "企业服务": 64,
+          "安全服务": 61,
+          "智能硬件": 59,
+          "数据产品": 56
+        }
+      },
+      "order_amount": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 240,
+        "inferred_kind": "numeric",
+        "samples": [
+          "64841.17",
+          "39544.13",
+          "74848.92",
+          "78036.38",
+          "50421.93"
+        ],
+        "min": 8193.6,
+        "max": 360180.18,
+        "sum": 19644867.74,
+        "avg": 81853.62,
+        "zero_count": 0
+      },
+      "paid_amount": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 209,
+        "inferred_kind": "numeric",
+        "samples": [
+          "0",
+          "58785.1",
+          "39495.34",
+          "73556.05",
+          "71812.93"
+        ],
+        "min": 0.0,
+        "max": 314067.87,
+        "sum": 15658626.69,
+        "avg": 65244.28,
+        "zero_count": 32
+      },
+      "status": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 3,
+        "inferred_kind": "text",
+        "samples": [
+          "已支付",
+          "已取消",
+          "已退款"
+        ],
+        "value_counts": {
+          "已支付": 208,
+          "已取消": 17,
+          "已退款": 15
+        }
+      },
+      "order_date": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 31,
+        "inferred_kind": "text",
+        "samples": [
+          "2026-08-30",
+          "2026-08-03",
+          "2026-08-24",
+          "2026-08-21",
+          "2026-08-18"
+        ]
+      },
+      "customer_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 30,
+        "inferred_kind": "numeric",
+        "samples": [
+          "129",
+          "118",
+          "106",
+          "112",
+          "125"
+        ],
+        "min": 101.0,
+        "max": 130.0,
+        "sum": 27674.0,
+        "avg": 115.31,
+        "zero_count": 0
+      },
+      "product_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 12,
+        "inferred_kind": "numeric",
+        "samples": [
+          "111",
+          "106",
+          "104",
+          "107",
+          "112"
+        ],
+        "min": 101.0,
+        "max": 112.0,
+        "sum": 25574.0,
+        "avg": 106.56,
+        "zero_count": 0,
+        "value_counts": {
+          "111": 27,
+          "106": 26,
+          "104": 24,
+          "107": 24,
+          "112": 21,
+          "101": 20,
+          "102": 19,
+          "108": 19,
+          "103": 17,
+          "109": 16,
+          "105": 14,
+          "110": 13
+        }
+      }
+    },
+    "head_3": [
+      {
+        "order_id": "10001",
+        "region": "华南",
+        "category": "企业服务",
+        "order_amount": "64841.17",
+        "paid_amount": "58785.1",
+        "status": "已支付",
+        "order_date": "2026-08-05",
+        "customer_id": "118",
+        "product_id": "104"
+      },
+      {
+        "order_id": "10002",
+        "region": "华南",
+        "category": "数据产品",
+        "order_amount": "39544.13",
+        "paid_amount": "39495.34",
+        "status": "已支付",
+        "order_date": "2026-08-18",
+        "customer_id": "130",
+        "product_id": "101"
+      },
+      {
+        "order_id": "10003",
+        "region": "华北",
+        "category": "智能硬件",
+        "order_amount": "74848.92",
+        "paid_amount": "73556.05",
+        "status": "已支付",
+        "order_date": "2026-08-15",
+        "customer_id": "119",
+        "product_id": "107"
+      }
+    ]
+  },
+  {
+    "file": "orders_history.csv",
+    "row_count": 480,
+    "column_count": 9,
+    "columns": {
+      "order_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 480,
+        "inferred_kind": "numeric",
+        "samples": [
+          "20001",
+          "20002",
+          "20003",
+          "20004",
+          "20005"
+        ],
+        "min": 20001.0,
+        "max": 20480.0,
+        "sum": 9715440.0,
+        "avg": 20240.5,
+        "zero_count": 0
+      },
+      "region": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "华南",
+          "华东",
+          "华北",
+          "西南"
+        ],
+        "value_counts": {
+          "华南": 136,
+          "华东": 126,
+          "华北": 116,
+          "西南": 102
+        }
+      },
+      "category": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "企业服务",
+          "智能硬件",
+          "数据产品",
+          "安全服务"
+        ],
+        "value_counts": {
+          "企业服务": 142,
+          "智能硬件": 128,
+          "数据产品": 109,
+          "安全服务": 101
+        }
+      },
+      "order_amount": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 480,
+        "inferred_kind": "numeric",
+        "samples": [
+          "68434.11",
+          "8877.24",
+          "45539.98",
+          "30957.32",
+          "104057.69"
+        ],
+        "min": 6584.02,
+        "max": 696213.92,
+        "sum": 37095610.35,
+        "avg": 77282.52,
+        "zero_count": 0
+      },
+      "paid_amount": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 427,
+        "inferred_kind": "numeric",
+        "samples": [
+          "0",
+          "67619.61",
+          "8409.4",
+          "44810.77",
+          "101622.18"
+        ],
+        "min": 0.0,
+        "max": 211827.28,
+        "sum": 30241139.34,
+        "avg": 63002.37,
+        "zero_count": 54
+      },
+      "status": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 3,
+        "inferred_kind": "text",
+        "samples": [
+          "已支付",
+          "已取消",
+          "已退款"
+        ],
+        "value_counts": {
+          "已支付": 426,
+          "已取消": 32,
+          "已退款": 22
+        }
+      },
+      "order_date": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 61,
+        "inferred_kind": "text",
+        "samples": [
+          "2026-06-24",
+          "2026-07-24",
+          "2026-07-14",
+          "2026-07-31",
+          "2026-07-11"
+        ]
+      },
+      "customer_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 30,
+        "inferred_kind": "numeric",
+        "samples": [
+          "128",
+          "122",
+          "117",
+          "111",
+          "126"
+        ],
+        "min": 101.0,
+        "max": 130.0,
+        "sum": 55786.0,
+        "avg": 116.22,
+        "zero_count": 0
+      },
+      "product_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 12,
+        "inferred_kind": "numeric",
+        "samples": [
+          "106",
+          "105",
+          "109",
+          "102",
+          "108"
+        ],
+        "min": 101.0,
+        "max": 112.0,
+        "sum": 51097.0,
+        "avg": 106.45,
+        "zero_count": 0,
+        "value_counts": {
+          "106": 57,
+          "105": 54,
+          "109": 47,
+          "102": 43,
+          "108": 42,
+          "111": 41,
+          "107": 39,
+          "103": 35,
+          "110": 32,
+          "104": 31,
+          "101": 31,
+          "112": 28
+        }
+      }
+    },
+    "head_3": [
+      {
+        "order_id": "20001",
+        "region": "华东",
+        "category": "企业服务",
+        "order_amount": "68434.11",
+        "paid_amount": "67619.61",
+        "status": "已支付",
+        "order_date": "2026-06-15",
+        "customer_id": "125",
+        "product_id": "106"
+      },
+      {
+        "order_id": "20002",
+        "region": "华北",
+        "category": "企业服务",
+        "order_amount": "8877.24",
+        "paid_amount": "8409.4",
+        "status": "已支付",
+        "order_date": "2026-06-14",
+        "customer_id": "123",
+        "product_id": "106"
+      },
+      {
+        "order_id": "20003",
+        "region": "华南",
+        "category": "智能硬件",
+        "order_amount": "45539.98",
+        "paid_amount": "44810.77",
+        "status": "已支付",
+        "order_date": "2026-06-14",
+        "customer_id": "130",
+        "product_id": "108"
+      }
+    ]
+  },
+  {
+    "file": "products.csv",
+    "row_count": 12,
+    "column_count": 3,
+    "columns": {
+      "product_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 12,
+        "inferred_kind": "numeric",
+        "samples": [
+          "101",
+          "102",
+          "103",
+          "104",
+          "105"
+        ],
+        "min": 101.0,
+        "max": 112.0,
+        "sum": 1278.0,
+        "avg": 106.5,
+        "zero_count": 0,
+        "value_counts": {
+          "101": 1,
+          "102": 1,
+          "103": 1,
+          "104": 1,
+          "105": 1,
+          "106": 1,
+          "107": 1,
+          "108": 1,
+          "109": 1,
+          "110": 1,
+          "111": 1,
+          "112": 1
+        }
+      },
+      "product_name": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 12,
+        "inferred_kind": "text",
+        "samples": [
+          "智能分析平台",
+          "实时指标中心",
+          "经营驾驶舱",
+          "企业协同套件",
+          "客户运营服务"
+        ],
+        "value_counts": {
+          "智能分析平台": 1,
+          "实时指标中心": 1,
+          "经营驾驶舱": 1,
+          "企业协同套件": 1,
+          "客户运营服务": 1,
+          "数据治理咨询": 1,
+          "边缘计算终端": 1,
+          "智能采集网关": 1,
+          "工业传感套件": 1,
+          "零信任接入": 1,
+          "数据脱敏服务": 1,
+          "安全审计平台": 1
+        }
+      },
+      "category": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "数据产品",
+          "企业服务",
+          "智能硬件",
+          "安全服务"
+        ],
+        "value_counts": {
+          "数据产品": 3,
+          "企业服务": 3,
+          "智能硬件": 3,
+          "安全服务": 3
+        }
+      }
+    },
+    "head_3": [
+      {
+        "product_id": "101",
+        "product_name": "智能分析平台",
+        "category": "数据产品"
+      },
+      {
+        "product_id": "102",
+        "product_name": "实时指标中心",
+        "category": "数据产品"
+      },
+      {
+        "product_id": "103",
+        "product_name": "经营驾驶舱",
+        "category": "数据产品"
+      }
+    ]
+  },
+  {
+    "file": "sales_targets.csv",
+    "row_count": 8,
+    "column_count": 5,
+    "columns": {
+      "target_id": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 8,
+        "inferred_kind": "numeric",
+        "samples": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "min": 1.0,
+        "max": 8.0,
+        "sum": 36.0,
+        "avg": 4.5,
+        "zero_count": 0,
+        "value_counts": {
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1
+        }
+      },
+      "target_month": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 2,
+        "inferred_kind": "text",
+        "samples": [
+          "2026-07",
+          "2026-08"
+        ],
+        "value_counts": {
+          "2026-07": 4,
+          "2026-08": 4
+        }
+      },
+      "region": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "华东",
+          "华南",
+          "华北",
+          "西南"
+        ],
+        "value_counts": {
+          "华东": 2,
+          "华南": 2,
+          "华北": 2,
+          "西南": 2
+        }
+      },
+      "target_amount": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 8,
+        "inferred_kind": "numeric",
+        "samples": [
+          "1900000",
+          "1550000",
+          "1350000",
+          "1100000",
+          "2200000"
+        ],
+        "min": 1100000.0,
+        "max": 2200000.0,
+        "sum": 12800000.0,
+        "avg": 1600000.0,
+        "zero_count": 0,
+        "value_counts": {
+          "1900000": 1,
+          "1550000": 1,
+          "1350000": 1,
+          "1100000": 1,
+          "2200000": 1,
+          "1800000": 1,
+          "1600000": 1,
+          "1300000": 1
+        }
+      },
+      "owner_name": {
+        "null_count": 0,
+        "null_ratio": 0.0,
+        "distinct_count": 4,
+        "inferred_kind": "text",
+        "samples": [
+          "林晓",
+          "周岚",
+          "宋言",
+          "陈川"
+        ],
+        "value_counts": {
+          "林晓": 2,
+          "周岚": 2,
+          "宋言": 2,
+          "陈川": 2
+        }
+      }
+    },
+    "head_3": [
+      {
+        "target_id": "1",
+        "target_month": "2026-07",
+        "region": "华东",
+        "target_amount": "1900000",
+        "owner_name": "林晓"
+      },
+      {
+        "target_id": "2",
+        "target_month": "2026-07",
+        "region": "华南",
+        "target_amount": "1550000",
+        "owner_name": "周岚"
+      },
+      {
+        "target_id": "3",
+        "target_month": "2026-07",
+        "region": "华北",
+        "target_amount": "1350000",
+        "owner_name": "宋言"
+      }
+    ]
+  }
+]

@@ -1,0 +1,165 @@
+import { FLIGHT_HEADERS, VINEXT_MW_CTX_HEADER } from "./headers.js";
+import { buildRequestHeadersFromMiddlewareResponse } from "./middleware-request-headers.js";
+import { isExternalUrl, proxyExternalRequest } from "../config/config-matchers.js";
+import { internalServerErrorResponse } from "./http-error-responses.js";
+import { cloneRequestWithHeaders, processMiddlewareHeaders } from "./request-pipeline.js";
+import { executeMiddleware } from "./middleware-runtime.js";
+import { applyMiddlewareRequestHeaders, setHeadersContext } from "../shims/headers.js";
+import { setNavigationContext } from "../shims/navigation.js";
+import { mergeMiddlewareResponseHeaders } from "./middleware-response-headers.js";
+//#region src/server/app-middleware.ts
+const FLIGHT_HEADER_SET = new Set(FLIGHT_HEADERS);
+function isForwardedMiddlewareContext(value) {
+	return !!value && typeof value === "object";
+}
+function requestWithoutFlightHeaders(request) {
+	let hasFlightHeader = false;
+	const headers = new Headers();
+	for (const [key, value] of request.headers) if (FLIGHT_HEADER_SET.has(key.toLowerCase())) hasFlightHeader = true;
+	else headers.append(key, value);
+	if (!hasFlightHeader) return request;
+	return cloneRequestWithHeaders(request.body ? request.clone() : request, headers);
+}
+function appendForwardedHeader(headers, value) {
+	if (!Array.isArray(value) || value.length < 2) return;
+	const key = value[0];
+	const headerValue = value[1];
+	if (typeof key === "string" && typeof headerValue === "string") headers.append(key, headerValue);
+}
+function responseFromMiddlewareRedirect(result) {
+	if (result.response) return result.response;
+	const headers = new Headers(result.responseHeaders);
+	if (result.redirectUrl) headers.set("Location", result.redirectUrl);
+	return new Response(null, {
+		status: result.redirectStatus ?? 307,
+		headers
+	});
+}
+function isExternalMiddlewareRewrite(rewriteUrl, request) {
+	return new URL(rewriteUrl, request.url).origin !== new URL(request.url).origin;
+}
+function requestWithMiddlewareRequestHeaders(request, middlewareHeaders) {
+	const nextHeaders = middlewareHeaders ? buildRequestHeadersFromMiddlewareResponse(request.headers, middlewareHeaders, { preserveCredentialHeaders: true }) : null;
+	if (!nextHeaders) return request;
+	const init = {
+		method: request.method,
+		headers: nextHeaders,
+		body: request.body
+	};
+	if (request.body) Object.defineProperty(init, "duplex", {
+		value: "half",
+		enumerable: true
+	});
+	return new Request(request.url, init);
+}
+async function proxyExternalMiddlewareRewrite(request, rewriteUrl, context) {
+	const proxyRequest = requestWithMiddlewareRequestHeaders(request, context.requestHeaders ?? context.headers);
+	setHeadersContext(null);
+	setNavigationContext(null);
+	const proxyResponse = await proxyExternalRequest(proxyRequest, rewriteUrl);
+	const headers = new Headers(proxyResponse.headers);
+	processMiddlewareHeaders(headers);
+	if (!context.headers) return new Response(proxyResponse.body, {
+		status: proxyResponse.status,
+		statusText: proxyResponse.statusText,
+		headers
+	});
+	const middlewareHeaders = new Headers(context.headers);
+	processMiddlewareHeaders(middlewareHeaders);
+	mergeMiddlewareResponseHeaders(headers, middlewareHeaders);
+	return new Response(proxyResponse.body, {
+		status: proxyResponse.status,
+		statusText: proxyResponse.statusText,
+		headers
+	});
+}
+function applyForwardedMiddlewareContext(request, context) {
+	if (process.env.NODE_ENV === "production") return { applied: false };
+	const header = request.headers.get(VINEXT_MW_CTX_HEADER);
+	if (!header) return { applied: false };
+	try {
+		const data = JSON.parse(header);
+		if (!isForwardedMiddlewareContext(data)) return { applied: false };
+		if (Array.isArray(data.h) && data.h.length > 0) {
+			context.headers = new Headers();
+			for (const entry of data.h) appendForwardedHeader(context.headers, entry);
+		}
+		if (typeof data.s === "number") context.status = data.s;
+		if (typeof data.r === "string" && data.r.length > 0) return {
+			applied: true,
+			rewriteUrl: data.r
+		};
+		return { applied: true };
+	} catch (e) {
+		console.error("[vinext] Failed to parse forwarded middleware context:", e);
+		return { applied: false };
+	}
+}
+async function applyAppMiddleware(options) {
+	const forwarded = applyForwardedMiddlewareContext(options.request, options.context);
+	const middlewareRequest = requestWithoutFlightHeaders(options.request);
+	let cleanPathname = options.cleanPathname;
+	let search = null;
+	if (forwarded.rewriteUrl) try {
+		if (isExternalMiddlewareRewrite(forwarded.rewriteUrl, middlewareRequest)) return {
+			kind: "response",
+			response: await proxyExternalMiddlewareRewrite(middlewareRequest, forwarded.rewriteUrl, options.context)
+		};
+		const rewriteParsed = new URL(forwarded.rewriteUrl, middlewareRequest.url);
+		cleanPathname = rewriteParsed.pathname;
+		search = rewriteParsed.search;
+	} catch (e) {
+		console.error("[vinext] Failed to apply forwarded middleware rewrite:", e);
+		forwarded.applied = false;
+	}
+	if (!forwarded.applied) {
+		const result = await executeMiddleware({
+			basePath: options.basePath,
+			i18nConfig: options.i18nConfig,
+			isProxy: options.isProxy,
+			module: options.module,
+			normalizedPathname: cleanPathname,
+			request: middlewareRequest
+		});
+		if (!result.continue) {
+			if (result.redirectUrl) return {
+				kind: "response",
+				response: responseFromMiddlewareRedirect(result)
+			};
+			if (result.response) return {
+				kind: "response",
+				response: result.response
+			};
+			return {
+				kind: "response",
+				response: internalServerErrorResponse()
+			};
+		}
+		if (result.responseHeaders) options.context.headers = new Headers(result.responseHeaders);
+		if (result.status !== void 0) options.context.status = result.status;
+		if (result.rewriteUrl) {
+			if (result.rewriteStatus !== void 0) options.context.status = result.rewriteStatus;
+			if (isExternalUrl(result.rewriteUrl)) return {
+				kind: "response",
+				response: await proxyExternalMiddlewareRewrite(middlewareRequest, result.rewriteUrl, options.context)
+			};
+			const rewriteParsed = new URL(result.rewriteUrl, middlewareRequest.url);
+			cleanPathname = rewriteParsed.pathname;
+			search = rewriteParsed.search;
+		}
+	}
+	if (options.context.headers) {
+		options.context.requestHeaders = new Headers(options.context.headers);
+		applyMiddlewareRequestHeaders(options.context.headers);
+		processMiddlewareHeaders(options.context.headers);
+	}
+	return {
+		kind: "continue",
+		cleanPathname,
+		search
+	};
+}
+//#endregion
+export { FLIGHT_HEADERS, applyAppMiddleware, isExternalMiddlewareRewrite, proxyExternalMiddlewareRewrite };
+
+//# sourceMappingURL=app-middleware.js.map

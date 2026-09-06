@@ -1,0 +1,7 @@
+{
+  "name": "data_qa",
+  "description": "解释、对比或总结已有查询结果和用户选中的表格。",
+  "allowed_tools": [],
+  "max_tool_calls": 0,
+  "output_actions": ["answer"]
+}

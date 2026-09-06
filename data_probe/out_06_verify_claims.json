@@ -1,0 +1,123 @@
+{
+  "cursor_description": [
+    {
+      "index_0_name": "销售地区",
+      "index_1_type_code": "VARCHAR",
+      "full_tuple_len": 7,
+      "full_tuple": [
+        "销售地区",
+        "VARCHAR",
+        "None",
+        "None",
+        "None",
+        "None",
+        "None"
+      ]
+    },
+    {
+      "index_0_name": "销售额",
+      "index_1_type_code": "DOUBLE",
+      "full_tuple_len": 7,
+      "full_tuple": [
+        "销售额",
+        "DOUBLE",
+        "None",
+        "None",
+        "None",
+        "None",
+        "None"
+      ]
+    },
+    {
+      "index_0_name": "订单数",
+      "index_1_type_code": "BIGINT",
+      "full_tuple_len": 7,
+      "full_tuple": [
+        "订单数",
+        "BIGINT",
+        "None",
+        "None",
+        "None",
+        "None",
+        "None"
+      ]
+    },
+    {
+      "index_0_name": "客单价",
+      "index_1_type_code": "DOUBLE",
+      "full_tuple_len": 7,
+      "full_tuple": [
+        "客单价",
+        "DOUBLE",
+        "None",
+        "None",
+        "None",
+        "None",
+        "None"
+      ]
+    },
+    {
+      "index_0_name": "销售目标",
+      "index_1_type_code": "BIGINT",
+      "full_tuple_len": 7,
+      "full_tuple": [
+        "销售目标",
+        "BIGINT",
+        "None",
+        "None",
+        "None",
+        "None",
+        "None"
+      ]
+    },
+    {
+      "index_0_name": "目标完成率",
+      "index_1_type_code": "DOUBLE",
+      "full_tuple_len": 7,
+      "full_tuple": [
+        "目标完成率",
+        "DOUBLE",
+        "None",
+        "None",
+        "None",
+        "None",
+        "None"
+      ]
+    }
+  ],
+  "claim_1_type_code_available": true,
+  "sample_rows_actual": [
+    {
+      "销售地区": "西南",
+      "销售额": 4474287.06,
+      "订单数": 47,
+      "客单价": 95197.6,
+      "销售目标": 1300000,
+      "目标完成率": 344.18
+    },
+    {
+      "销售地区": "华东",
+      "销售额": 4292183.75,
+      "订单数": 56,
+      "客单价": 76646.14,
+      "销售目标": 2200000,
+      "目标完成率": 195.1
+    },
+    {
+      "销售地区": "华南",
+      "销售额": 3513112.52,
+      "订单数": 58,
+      "客单价": 60570.91,
+      "销售目标": 1800000,
+      "目标完成率": 195.17
+    },
+    {
+      "销售地区": "华北",
+      "销售额": 3379043.36,
+      "订单数": 47,
+      "客单价": 71894.54,
+      "销售目标": 1600000,
+      "目标完成率": 211.19
+    }
+  ]
+}

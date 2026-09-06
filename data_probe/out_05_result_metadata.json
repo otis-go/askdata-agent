@@ -1,0 +1,293 @@
+{
+  "queryresult_top_level_keys": [
+    "analysis",
+    "analysis_sources",
+    "clarification",
+    "columns",
+    "execution_log",
+    "interpretation",
+    "message",
+    "result_title",
+    "retrieval",
+    "route",
+    "route_reason",
+    "rows",
+    "saved",
+    "schema_graph",
+    "sql",
+    "standalone_query",
+    "status",
+    "steps",
+    "task_id",
+    "tool_calls",
+    "workflow_mode"
+  ],
+  "queryresult_full_sample": {
+    "task_id": "probe-task-0001",
+    "status": "completed",
+    "route": "database_query",
+    "message": "查询完成",
+    "interpretation": {
+      "metric": "销售额、订单数、销售目标、目标完成率",
+      "dimension": "销售地区、客单价",
+      "time_range": "本月",
+      "table": "当前订单明细、地区销售目标",
+      "assumptions": [
+        "Schema字段经过Rerank阈值筛选",
+        "用户拖入字段为确定性约束"
+      ]
+    },
+    "clarification": null,
+    "steps": [
+      "一次预处理：上下文聚合、问答/问数路由、检索词提取",
+      "BM25与Dense召回，经RRF融合和Rerank阈值筛选",
+      "构建Schema图：2张表 / 0个字段",
+      "单库智能体选择MCP工具并生成SQL",
+      "通过MCP数据库工具调用DuckDB并整理结果"
+    ],
+    "sql": "SELECT o.region AS 销售地区,\n           ROUND(SUM(o.paid_amount), 2) AS 销售额,\n           COUNT(o.order_id) AS 订单数,\n           ROUND(SUM(o.paid_amount) / COUNT(o.order_id), 2) AS 客单价,\n           MAX(t.target_amount) AS 销售目标,\n           ROUND(100.0 * SUM(o.paid_amount) / MAX(t.target_amount), 2) AS 目标完成率\n    FROM orders_current o\n    JOIN sales_targets t ON o.region = t.region AND t.target_month = '2026-08'\n    WHERE o.status = '已支付'\n    GROUP BY o.region ORDER BY 销售额 DESC",
+    "columns": [
+      "销售地区",
+      "销售额",
+      "订单数",
+      "客单价",
+      "销售目标",
+      "目标完成率"
+    ],
+    "rows": [
+      {
+        "销售地区": "西南",
+        "销售额": 4474287.06,
+        "订单数": 47,
+        "客单价": 95197.6,
+        "销售目标": 1300000,
+        "目标完成率": 344.18
+      },
+      {
+        "销售地区": "华东",
+        "销售额": 4292183.75,
+        "订单数": 56,
+        "客单价": 76646.14,
+        "销售目标": 2200000,
+        "目标完成率": 195.1
+      },
+      {
+        "销售地区": "华南",
+        "销售额": 3513112.52,
+        "订单数": 58,
+        "客单价": 60570.91,
+        "销售目标": 1800000,
+        "目标完成率": 195.17
+      },
+      {
+        "销售地区": "华北",
+        "销售额": 3379043.36,
+        "订单数": 47,
+        "客单价": 71894.54,
+        "销售目标": 1600000,
+        "目标完成率": 211.19
+      }
+    ],
+    "analysis": "示例说明",
+    "saved": false,
+    "route_reason": "问数",
+    "retrieval": {},
+    "execution_log": [],
+    "tool_calls": [],
+    "result_title": "本月各地区销售额与目标完成率",
+    "analysis_sources": [],
+    "standalone_query": null,
+    "schema_graph": {
+      "tables": [
+        {
+          "id": "orders_current",
+          "label": "当前订单明细",
+          "description": "",
+          "domain": "",
+          "database": "askdata_mock"
+        },
+        {
+          "id": "sales_targets",
+          "label": "地区销售目标",
+          "description": "",
+          "domain": "",
+          "database": "askdata_mock"
+        }
+      ],
+      "fields": [],
+      "joins": [],
+      "graph_version": "probe000000"
+    },
+    "workflow_mode": "single_database_agent"
+  },
+  "sqlexecution_columns": [
+    "销售地区",
+    "销售额",
+    "订单数",
+    "客单价",
+    "销售目标",
+    "目标完成率"
+  ],
+  "per_column_metadata_available": [
+    {
+      "column": "销售地区",
+      "backend_role_heuristic": "dimension",
+      "frontend_format_heuristic": "number(2位小数)",
+      "python_type": "str",
+      "traceable_to_schema_field": false,
+      "declared_unit": null,
+      "declared_precision": null
+    },
+    {
+      "column": "销售额",
+      "backend_role_heuristic": "metric",
+      "frontend_format_heuristic": "currency(CNY, 0位小数)",
+      "python_type": "float",
+      "traceable_to_schema_field": false,
+      "declared_unit": null,
+      "declared_precision": null
+    },
+    {
+      "column": "订单数",
+      "backend_role_heuristic": "metric",
+      "frontend_format_heuristic": "number(2位小数)",
+      "python_type": "int",
+      "traceable_to_schema_field": false,
+      "declared_unit": null,
+      "declared_precision": null
+    },
+    {
+      "column": "客单价",
+      "backend_role_heuristic": "dimension",
+      "frontend_format_heuristic": "currency(CNY, 0位小数)",
+      "python_type": "float",
+      "traceable_to_schema_field": false,
+      "declared_unit": null,
+      "declared_precision": null
+    },
+    {
+      "column": "销售目标",
+      "backend_role_heuristic": "metric",
+      "frontend_format_heuristic": "number(2位小数)",
+      "python_type": "int",
+      "traceable_to_schema_field": false,
+      "declared_unit": null,
+      "declared_precision": null
+    },
+    {
+      "column": "目标完成率",
+      "backend_role_heuristic": "metric",
+      "frontend_format_heuristic": "percent(值×100)",
+      "python_type": "float",
+      "traceable_to_schema_field": false,
+      "declared_unit": null,
+      "declared_precision": null
+    }
+  ],
+  "heuristic_disagreements": [
+    {
+      "column": "地区",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "销售地区",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "销售额",
+      "backend_role": "metric",
+      "frontend_format": "currency(CNY, 0位小数)",
+      "conflict": false
+    },
+    {
+      "column": "订单数",
+      "backend_role": "metric",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "客单价",
+      "backend_role": "dimension",
+      "frontend_format": "currency(CNY, 0位小数)",
+      "conflict": true
+    },
+    {
+      "column": "目标完成率",
+      "backend_role": "metric",
+      "frontend_format": "percent(值×100)",
+      "conflict": false
+    },
+    {
+      "column": "完成率百分比",
+      "backend_role": "metric",
+      "frontend_format": "percent(值×100)",
+      "conflict": false
+    },
+    {
+      "column": "月份",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "客户等级",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "产品类别",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "销售目标",
+      "backend_role": "metric",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "环比百分比",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "占比百分比",
+      "backend_role": "dimension",
+      "frontend_format": "percent(值×100)",
+      "conflict": true
+    },
+    {
+      "column": "区域负责人",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "订单编号",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    },
+    {
+      "column": "毛利",
+      "backend_role": "dimension",
+      "frontend_format": "number(2位小数)",
+      "conflict": false
+    }
+  ],
+  "percent_unit_demo": [
+    {
+      "column": "目标完成率",
+      "sql_returned_value": 344.18,
+      "frontend_rendered": "34418.0%",
+      "note": "SQL 已经乘过 100，前端 formatCell 会再乘一次，渲染值被放大 100 倍。"
+    }
+  ]
+}

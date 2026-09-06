@@ -1,0 +1,198 @@
+{
+  "physical_vs_static_types": [
+    {
+      "column": "customers.customer_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "customers.customer_name",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "customers.customer_level",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "customers.region",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.order_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.region",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.category",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.order_amount",
+      "duckdb_physical_type": "DOUBLE",
+      "static_schema_type": "数值",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.paid_amount",
+      "duckdb_physical_type": "DOUBLE",
+      "static_schema_type": "数值",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.status",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.order_date",
+      "duckdb_physical_type": "DATE",
+      "static_schema_type": "日期",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.customer_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_current.product_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.order_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.region",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.category",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.order_amount",
+      "duckdb_physical_type": "DOUBLE",
+      "static_schema_type": "数值",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.paid_amount",
+      "duckdb_physical_type": "DOUBLE",
+      "static_schema_type": "数值",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.status",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.order_date",
+      "duckdb_physical_type": "DATE",
+      "static_schema_type": "日期",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.customer_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "orders_history.product_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "products.product_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "products.product_name",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "products.category",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "sales_targets.target_id",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "整数",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "sales_targets.target_month",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "日期",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "sales_targets.region",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "sales_targets.target_amount",
+      "duckdb_physical_type": "BIGINT",
+      "static_schema_type": "数值",
+      "is_nullable": "YES"
+    },
+    {
+      "column": "sales_targets.owner_name",
+      "duckdb_physical_type": "VARCHAR",
+      "static_schema_type": "文本",
+      "is_nullable": "YES"
+    }
+  ],
+  "truncation": {
+    "table_total_rows": 240,
+    "engine_fetchmany_size": 201,
+    "rows_actually_fetched": 201,
+    "rows_returned_to_caller": 200,
+    "engine_knows_more_rows_exist": true,
+    "flag_exposed_in_SqlExecution": false,
+    "note": "duckdb_engine.py:43-48 取 fetchmany(201) 后切片 [:200]，第 201 行只用于判断是否还有更多数据，但该信息未写入任何返回字段。"
+  },
+  "metadata_reachability": {
+    "information_schema_via_execute": false,
+    "error": "SQL引用了未知数据表：columns",
+    "note": "SQL 白名单只允许 SCHEMA 中登记的 5 张业务表，元数据表不可达。"
+  }
+}

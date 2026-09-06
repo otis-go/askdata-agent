@@ -1,0 +1,45 @@
+//#region src/shims/url-safety.ts
+/**
+* Shared URL safety utilities for Link, Form, and navigation shims.
+*
+* Centralizes dangerous URI scheme detection so all components and
+* navigation functions use the same validation logic.
+*/
+/**
+* Detect dangerous URI schemes that should never be navigated to.
+*
+* Adapted from Next.js's javascript URL detector:
+* packages/next/src/client/lib/javascript-url.ts
+* https://github.com/vercel/next.js/blob/canary/packages/next/src/client/lib/javascript-url.ts
+*
+* URL parsing ignores leading C0 control characters / spaces, and treats
+* embedded tab/newline characters in the scheme as insignificant. We mirror
+* that behavior here so obfuscated values like `java\nscript:` and
+* `\x00javascript:` are still blocked.
+*
+* Vinext intentionally extends this handling to `data:` and `vbscript:` too,
+* since both are also dangerous navigation targets.
+*/
+const LEADING_IGNORED = "[\\u0000-\\u001F \\u200B\\uFEFF]*";
+const SCHEME_IGNORED = "[\\r\\n\\t]*";
+function buildDangerousSchemeRegex(scheme) {
+	const chars = scheme.split("").join(SCHEME_IGNORED);
+	return new RegExp(`^${LEADING_IGNORED}${chars}${SCHEME_IGNORED}:`, "i");
+}
+const DANGEROUS_SCHEME_RES = [
+	buildDangerousSchemeRegex("javascript"),
+	buildDangerousSchemeRegex("data"),
+	buildDangerousSchemeRegex("vbscript")
+];
+const DANGEROUS_URL_BLOCK_MESSAGE = "Next.js has blocked a javascript: URL as a security precaution.";
+function isDangerousScheme(url) {
+	const str = "" + url;
+	return DANGEROUS_SCHEME_RES.some((re) => re.test(str));
+}
+function assertSafeNavigationUrl(url) {
+	if (isDangerousScheme(url)) throw new Error(DANGEROUS_URL_BLOCK_MESSAGE);
+}
+//#endregion
+export { DANGEROUS_URL_BLOCK_MESSAGE, assertSafeNavigationUrl, isDangerousScheme };
+
+//# sourceMappingURL=url-safety.js.map
