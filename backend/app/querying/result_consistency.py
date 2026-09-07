@@ -1,4 +1,4 @@
-"""Pure, non-mutating checks of the canonical-to-legacy execution projection.
+"""Pure, non-mutating checks of execution facts and their legacy projection.
 
 This verifies supplied evidence, not SQL equivalence, database fidelity or result
 authenticity. None/missing means unknown. A matching lossy projection does not
@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from .models import SqlExecution
-    from .result_contract import ResultContract
+    from .result_contract import ExecutionData, ResultContract
 
 
 ConsistencyStatus = Literal["consistent", "inconsistent", "insufficient_evidence"]
@@ -177,6 +177,41 @@ def _compare_cell(value: object, observed: object, column: object, path: str, ch
         checks.unknown(path, "matching projection is not reversible")
 
 
+def validate_execution_provenance(execution: ExecutionData) -> ConsistencyResult:
+    """Check known execution/provenance contradictions without interpreting SQL.
+
+    A successful DuckDB producer stores the same safe_sql in both SQL fields;
+    compare their exact text, without trimming, parsing or equivalence guesses.
+    Missing optional evidence is insufficient_evidence, never a contradiction.
+    Callers decide whether a conflict should reject an execution. This does not
+    change the separate canonical-to-legacy transport validation below.
+    """
+    checks = _Checks()
+    provenance = _read(execution, "provenance")
+    if _unknown(provenance):
+        checks.unknown("execution.provenance", "value is not known")
+        return checks.result()
+
+    sql = _read(execution, "sql")
+    submitted_sql = _read(provenance, "submitted_sql")
+    valid_sql = _typed(sql, str, "execution.sql", checks)
+    valid_submitted_sql = _typed(
+        submitted_sql, str, "execution.provenance.submitted_sql", checks,
+    )
+    if valid_sql and valid_submitted_sql and sql != submitted_sql:
+        checks.conflict("execution.provenance.submitted_sql", "execution/provenance SQL mismatch")
+
+    success = _read(execution, "success")
+    sql_submitted = _read(provenance, "sql_submitted")
+    valid_success = _typed(success, bool, "execution.success", checks)
+    valid_sql_submitted = _typed(
+        sql_submitted, bool, "execution.provenance.sql_submitted", checks,
+    )
+    if valid_success and valid_sql_submitted and success is True and sql_submitted is False:
+        checks.conflict("execution.provenance.sql_submitted", "success/sql_submitted conflict")
+    return checks.result()
+
+
 def validate_execution_consistency(
     legacy_execution: SqlExecution | Mapping[str, Any],
     result_contract: ResultContract | None,
@@ -312,4 +347,7 @@ def validate_execution_consistency(
     return checks.result()
 
 
-__all__ = ["ConsistencyIssue", "ConsistencyResult", "validate_execution_consistency"]
+__all__ = [
+    "ConsistencyIssue", "ConsistencyResult", "validate_execution_consistency",
+    "validate_execution_provenance",
+]

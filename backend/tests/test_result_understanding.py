@@ -314,7 +314,7 @@ class UnknownLineageTest(unittest.TestCase):
 
     def test_new_modules_have_no_execution_or_application_dependencies(self):
         root = Path(__file__).resolve().parents[1] / "app" / "querying" / "result_understanding"
-        allowed = {"__future__", "typing", "dataclasses", "datetime", "pydantic", "sqlglot", "result_contract", "models", "sql_parser", "lineage", "filter"}
+        allowed = {"__future__", "typing", "dataclasses", "datetime", "pydantic", "sqlglot", "result_contract", "result_consistency", "models", "sql_parser", "lineage", "filter", "schema_binding", "grain", "time_constraint"}
         for path in root.glob("*.py"):
             with self.subTest(module=path.name):
                 tree = ast.parse(path.read_text(encoding="utf-8"))

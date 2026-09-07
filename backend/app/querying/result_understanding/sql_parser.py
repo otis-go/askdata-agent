@@ -12,6 +12,13 @@ from sqlglot.errors import ParseError, TokenError
 class UnsupportedSQL(ValueError):
     """The SQL cannot be safely handled by the first-stage lineage parser."""
 
+    def __init__(self, message: str, *, statement: exp.Expression | None = None):
+        super().__init__(message)
+        # A rejected single AST may still carry scoped diagnostics (JOIN ON,
+        # QUALIFY, etc.). This is not a supported ParsedSelect or new capability.
+        # Syntax errors/multiple statements never choose a partial/first AST.
+        self.statement = statement
+
 
 def identifier_key(name: str) -> str:
     """DuckDB identifiers use ASCII case-insensitive matching, even if quoted.
@@ -45,7 +52,10 @@ def parse_sql(sql: str) -> ParsedSelect:
         raise UnsupportedSQL("SQL could not be parsed as DuckDB SQL") from exc
     if len(statements) != 1:
         raise UnsupportedSQL("exactly one SQL statement is required")
-    return inspect_select_ast(statements[0])
+    try:
+        return inspect_select_ast(statements[0])
+    except UnsupportedSQL as exc:
+        raise UnsupportedSQL(str(exc), statement=statements[0]) from exc
 
 
 def inspect_select_ast(statement: exp.Expression) -> ParsedSelect:

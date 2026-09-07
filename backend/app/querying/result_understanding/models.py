@@ -6,6 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..result_contract import ExecutionData
+
 
 SemanticStatus = Literal["resolved", "unsupported", "unknown"]
 Aggregation = Literal["SUM", "AVG", "COUNT"]
@@ -203,8 +205,37 @@ class TimeConstraintInfo(BaseModel):
     is_empty: bool | None = None
 
 
+class BusinessContext(BaseModel):
+    """Versioned assembly of execution facts and supported semantic evidence.
+
+    Build through builder.build_business_context. Execution is a detached copy,
+    not a newly inferred result. column_semantics describes actual output
+    ordinals only; query_bindings can also describe unprojected predicate fields.
+    understanding_status covers the required V1 semantic evidence, never data
+    fidelity, SQL validity, row coverage or business-population completeness.
+    Empty time_constraints does not assert all-time coverage.
+
+    Frozen prevents field reassignment, not mutation of nested lists. The public
+    builder isolates these lists from the input and from other build results.
+    """
+
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True)
+
+    version: Literal["1"] = "1"
+    result_id: str = Field(min_length=1)
+    result_contract_version: str = Field(min_length=1)
+    execution: ExecutionData
+    column_semantics: list[ColumnSemantic]
+    query_bindings: QueryBindingsInfo
+    grain: GrainInfo
+    filters: FilterInfo
+    time_constraints: list[TimeConstraintInfo]
+    understanding_status: SemanticStatus
+    limitations: list[str] = Field(default_factory=list)
+
+
 __all__ = [
-    "Aggregation", "ColumnSemantic", "FilterCondition", "FilterInfo", "FilterLiteral",
+    "Aggregation", "BusinessContext", "ColumnSemantic", "FilterCondition", "FilterInfo", "FilterLiteral",
     "FilterValueType", "GrainInfo", "TimeConstraintInfo", "TimeInclusivity",
     "LineageSource", "QueryBindingsInfo", "QueryGrain", "SchemaBinding", "SemanticStatus",
 ]
