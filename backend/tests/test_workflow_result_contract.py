@@ -229,7 +229,9 @@ class WorkflowResultContractTest(unittest.TestCase):
                 execution = completed.call_args.args[2]
                 self.assertEqual(execution.result_contract.model_dump(mode="json"), payload["result_contract"])
                 self.assertIs(completed.call_args.args[1][0], execution)
-                self.assertIs(self.workflow.response_generator.finalize.call_args.args[1], execution)
+                self.workflow.response_generator.finalize.assert_not_called()
+                self.assertEqual(update["result"]["explanation"]["generation_status"], "unavailable")
+                self.assertEqual(update["result"]["explanation"]["diagnostic_codes"], ["NO_SIGNAL_BATCH"])
                 self.assertEqual(update["result"]["status"], "completed")
                 self.assertEqual(state, before)
 
@@ -252,9 +254,14 @@ class WorkflowResultContractTest(unittest.TestCase):
             "__start__", "__end__", "preprocess", "respond_directly", "answer_qa",
             "retrieve_schema", "human_clarification", "prepare_single_database",
             "execute_single_database", "run_multi_database",
+            "build_signal_batch", "build_explanation_prompt", "generate_explanation",
         })
         self.assertTrue(any(
             edge.source == "execute_single_database" and edge.target == "__end__"
+            for edge in graph.edges
+        ))
+        self.assertTrue(any(
+            edge.source == "execute_single_database" and edge.target == "build_signal_batch"
             for edge in graph.edges
         ))
 

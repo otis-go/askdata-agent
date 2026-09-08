@@ -1,58 +1,60 @@
+"""Generate explanations only from an already projected PromptPackage."""
+
 from __future__ import annotations
 
-from typing import Any
-
-from ..config import Settings, settings
-from ..errors import PipelineStageError
 from ..model_client import ModelClient
-from ..skills import SkillDefinition
-from .models import SqlExecution
+from .explanation.prompt_builder import PromptPackage
+from .explanation.response_adapter import (
+    adapt_response_input, render_explanation_response, unavailable_explanation,
+)
+from .explanation.response_models import ExplanationResponse
+from .explanation.validator import validate_response
 
 
 class ResponseGenerator:
-    """生成问答内容和查询结果说明。"""
+    """Language organization cannot change the supplied business facts.
 
-    def __init__(
-        self,
-        model_client: ModelClient,
-        config: Settings | None = None,
-        qa_skill: SkillDefinition | None = None,
-    ) -> None:
+    Both public entry points have the same strict input boundary. There is no
+    legacy execution/context overload, row-based fallback or QA skill prompt.
+    """
+
+    def __init__(self, model_client: ModelClient) -> None:
         self.model_client = model_client
-        self.table_row_limit = max(1, (config or settings).context_table_row_limit)
-        self.qa_skill = qa_skill
 
-    def answer_qa(self, query: str, context: str) -> str:
-        system = self.qa_skill.instructions if self.qa_skill else (
-            "基于已有数据上下文回答，不编造数值；依据不足时明确说明。"
-        )
+    def generate_from_prompt_package(self, package: PromptPackage) -> ExplanationResponse:
+        if not isinstance(package, PromptPackage):
+            raise TypeError("ResponseGenerator requires a PromptPackage")
+        package = PromptPackage.model_validate(package)
+        if not package.fact_blocks:
+            return unavailable_explanation(
+                "NO_DISPLAYABLE_FACTS", generation_status="not_requested", package=package,
+            )
+        call = adapt_response_input(package)
         try:
-            return self.model_client.chat(system, f"问题：{query}\n可用上下文：{context or '无'}")
-        except RuntimeError as exc:
-            raise PipelineStageError("qa_answer", str(exc)) from exc
+            # Preserve the raw reply for strict parsing. chat_json's legacy
+            # code-fence/prose repair would bypass the adapter's wire contract.
+            payload = self.model_client.chat(call.system_message, call.user_message)
+        except RuntimeError:
+            return unavailable_explanation(
+                "LLM_CALL_FAILED", generation_status="failed", package=package,
+            )
+        try:
+            if type(payload) is not str:
+                raise TypeError("the model transport must return JSON text")
+            candidate = render_explanation_response(package, payload)
+        except (ValueError, TypeError, RecursionError):
+            return unavailable_explanation(
+                "RESPONSE_VALIDATION_FAILED", generation_status="validation_failed", package=package,
+            )
+        validation = validate_response(candidate, package)
+        if validation.status == "validation_failed":
+            return unavailable_explanation(
+                "RESPONSE_VALIDATION_FAILED", generation_status="validation_failed", package=package,
+            )
+        return validation.validated_response
 
-    def finalize(
-        self,
-        query: str,
-        execution: SqlExecution,
-        schema_context: str,
-        analysis_context: str,
-    ) -> dict[str, Any]:
-        system = """你是查询结果整理器。检查结果能否回答问题，并生成简短标题和一到两句说明。
-只能使用结果中真实存在的数值。只返回JSON：
-{"valid":true,"reason":"...","title":"...","analysis":"..."}。"""
-        user = (
-            f"问题：{query}\nSQL：{execution.sql}\n列：{execution.columns}\n"
-            f"结果数据：{execution.rows[: self.table_row_limit]}\nSchema：{schema_context}\n"
-            f"用户保存的分析表格：{analysis_context or '无'}"
-        )
-        try:
-            payload = self.model_client.chat_json(system, user)
-            return {
-                "valid": bool(payload.get("valid", True)),
-                "reason": str(payload.get("reason") or "结果检查通过"),
-                "title": str(payload.get("title") or "查询结果"),
-                "analysis": str(payload.get("analysis") or f"查询返回{len(execution.rows)}行。"),
-            }
-        except RuntimeError as exc:
-            raise PipelineStageError("result_analysis", str(exc)) from exc
+    def finalize(self, package: PromptPackage) -> ExplanationResponse:
+        return self.generate_from_prompt_package(package)
+
+    def answer_qa(self, package: PromptPackage) -> ExplanationResponse:
+        return self.generate_from_prompt_package(package)

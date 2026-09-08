@@ -4,6 +4,7 @@ from typing import Any
 
 from ..database import SCHEMA
 from ..models import Clarification, Interpretation, QueryResult
+from ..querying.explanation.response_models import ExplanationResponse
 from ..querying.models import SqlExecution
 
 
@@ -13,24 +14,44 @@ class ResultBuilder:
     @staticmethod
     def qa(
         task_id: str,
-        answer: str,
+        answer: ExplanationResponse,
         intent: dict[str, Any],
         analysis_sources: list[dict[str, Any]],
     ) -> QueryResult:
         return QueryResult(
             task_id=task_id,
-            status="completed",
+            status="completed" if answer.generation_status == "generated" else "failed",
             route="data_qa",
-            message="已进入数据问答，没有重复查询数据库。",
+            message="业务解释已生成" if answer.generation_status == "generated" else "当前业务解释不可生成",
             columns=[],
             rows=[],
-            analysis=answer,
+            analysis=answer.text,
+            explanation=answer,
             route_reason=str(intent.get("reason") or "数据问答"),
-            steps=["一级意图路由：数据问答", "读取可用分析上下文", "生成文字回答"],
+            steps=["一级意图路由：数据问答", "请求当前受信业务信号"],
             result_title="结果解读",
             analysis_sources=analysis_sources,
             workflow_mode="qa",
         )
+
+    @staticmethod
+    def with_explanation(
+        result: dict[str, Any], response: ExplanationResponse, log: list[dict[str, Any]],
+    ) -> QueryResult:
+        """Attach a verified explanation without deriving facts from the table."""
+        table_or_qa = QueryResult.model_validate(result)
+        generated = response.generation_status == "generated"
+        if table_or_qa.route == "database_query":
+            status = table_or_qa.status
+            message = "查询完成" if generated else "查询完成，业务解释不可生成"
+        else:
+            status = "completed" if generated else "failed"
+            message = "业务解释已生成" if generated else "当前业务解释不可生成"
+        return table_or_qa.model_copy(update={
+            "status": status, "message": message, "analysis": response.text,
+            "explanation": response, "execution_log": log,
+            "steps": [*table_or_qa.steps, "组织 SignalBatch 并生成独立解释状态"],
+        })
 
     @staticmethod
     def direct_response(
@@ -85,7 +106,7 @@ class ResultBuilder:
         state: dict[str, Any],
         executions: list[SqlExecution],
         combined: SqlExecution,
-        final: dict[str, Any],
+        final: ExplanationResponse,
         tool_calls: list[dict[str, Any]],
         execution_log: list[dict[str, Any]],
     ) -> QueryResult:
@@ -106,13 +127,12 @@ class ResultBuilder:
             "单库智能体选择MCP工具并生成SQL" if mode == "single_database_agent" else "多库路径：按数据库生成Handoff",
             "通过MCP数据库工具调用DuckDB并整理结果",
         ]
-        if state.get("analysis_sources"):
-            steps.append(f"综合分析{len(state['analysis_sources'])}张用户指定历史表")
+        steps.append("通过独立业务信号解释入口返回说明状态")
         return QueryResult(
             task_id=state["task_id"],
-            status="completed" if final.get("valid", True) else "failed",
+            status="completed" if combined.success else "failed",
             route="database_query",
-            message="查询完成" if final.get("valid", True) else "结果校验未通过",
+            message="查询完成" if final.generation_status == "generated" else "查询完成，业务解释不可生成",
             interpretation=Interpretation(
                 metric="、".join(metric_columns) or "查询结果指标",
                 dimension="、".join(dimension_columns) or "无分组维度",
@@ -126,12 +146,13 @@ class ResultBuilder:
             sql=combined.sql,
             columns=combined.columns,
             rows=combined.rows,
-            analysis=final.get("analysis"),
+            analysis=final.text,
+            explanation=final,
             route_reason=str(state.get("intent", {}).get("reason") or "问数"),
             retrieval=ResultBuilder.public_retrieval(state.get("retrieval") or {}),
             execution_log=execution_log,
             tool_calls=tool_calls,
-            result_title=final.get("title") or "查询结果",
+            result_title="查询结果",
             analysis_sources=state.get("analysis_sources") or [],
             standalone_query=state.get("standalone_query"),
             schema_graph=graph,

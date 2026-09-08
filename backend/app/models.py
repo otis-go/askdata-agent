@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from .querying.explanation.response_models import ExplanationResponse
 
 
 class ConfirmedField(BaseModel):
@@ -71,6 +74,7 @@ class QueryResult(BaseModel):
     columns: list[str] = []
     rows: list[dict[str, Any]] = []
     analysis: str | None = None
+    explanation: ExplanationResponse | None = None
     saved: bool = False
     route_reason: str | None = None
     retrieval: dict[str, Any] | None = None
@@ -81,6 +85,15 @@ class QueryResult(BaseModel):
     standalone_query: str | None = None
     schema_graph: dict[str, Any] | None = None
     workflow_mode: str | None = None
+
+    @field_validator("explanation", mode="before")
+    @classmethod
+    def restore_explanation(cls, value: Any) -> Any:
+        # Workflow checkpoints and HTTP storage use JSON arrays. Restore this
+        # strict nested contract through JSON validation, without relaxing it.
+        if type(value) is dict:
+            return ExplanationResponse.model_validate_json(json.dumps(value, allow_nan=False))
+        return value
 
 
 class SchemaField(BaseModel):

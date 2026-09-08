@@ -330,7 +330,9 @@ class AskDataServiceTest(unittest.TestCase):
         result = self.service.submit("基于这个表格帮我分析一下", "table-qa", workspace)
 
         self.assertEqual(result.route, "data_qa")
-        self.assertEqual(result.status, "completed")
+        self.assertEqual(result.status, "failed")
+        self.assertEqual(result.explanation.generation_status, "unavailable")
+        self.assertEqual(result.explanation.diagnostic_codes, ("NO_SIGNAL_BATCH",))
         self.assertIsNone(result.clarification)
         self.assertEqual(result.analysis_sources[0]["task_id"], source.task_id)
 
@@ -392,11 +394,15 @@ class AskDataServiceTest(unittest.TestCase):
 
     def test_follow_up_uses_data_qa_without_new_sql(self) -> None:
         self.service.submit("查询本月各地区销售额", "s1")
+        calls_before = self.client.chat_calls
         result = self.service.submit("分析刚才的结果", "s1")
         self.assertEqual(result.route, "data_qa")
         self.assertIsNone(result.sql)
         self.assertEqual(result.rows, [])
-        self.assertIn("复用", result.analysis)
+        self.assertEqual(result.explanation.generation_status, "unavailable")
+        self.assertEqual(result.explanation.diagnostic_codes, ("NO_SIGNAL_BATCH",))
+        self.assertEqual(result.analysis, "当前无法生成业务解释。")
+        self.assertEqual(self.client.chat_calls, calls_before)
 
     def test_greeting_after_query_does_not_repeat_previous_table(self) -> None:
         self.service.submit("查询本月各地区销售额", "greeting-session")

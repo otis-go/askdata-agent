@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from copy import deepcopy
 from typing import Any
 
 from langgraph.checkpoint.memory import InMemorySaver
@@ -15,6 +17,13 @@ from ..model_client import ModelClient
 from ..models import QueryResult
 from ..preprocessing import RequestPreprocessor
 from ..querying.duckdb_engine import DuckDbEngine
+from ..querying.business_signals.batch import SignalBatch
+from ..querying.business_signals.engine import SignalEngine
+from ..querying.explanation.context_builder import build_explanation_context
+from ..querying.explanation.prompt_builder import PromptPackage, build_prompt_package
+from ..querying.explanation.response_adapter import unavailable_explanation
+from ..querying.explanation.response_models import ExplanationResponse
+from ..querying.explanation.validator import validate_response
 from ..querying.models import SqlExecution
 from ..querying.response_generator import ResponseGenerator
 from ..querying.result_consistency import validate_execution_consistency
@@ -24,6 +33,7 @@ from ..retrieval import SchemaGraphBuilder, SchemaIndex
 from ..security import AccessScope
 from ..skills import SkillRegistry
 from .result_builder import ResultBuilder
+from .signal_delivery import SignalRequest, SignalSource, execution_digest, resolve_signals
 from .state import QueryState
 
 
@@ -35,6 +45,8 @@ class QueryWorkflow:
         model_client: ModelClient,
         schema_index: SchemaIndex,
         config: Settings | None = None,
+        *,
+        signal_source: SignalSource | None = None,
     ) -> None:
         self.model_client = model_client
         self.schema_index = schema_index
@@ -49,11 +61,9 @@ class QueryWorkflow:
             self.skills.get("database_query"),
             self.config.mcp_max_tool_calls,
         )
-        self.response_generator = ResponseGenerator(
-            model_client,
-            self.config,
-            self.skills.get("data_qa"),
-        )
+        self.response_generator = ResponseGenerator(model_client)
+        self.signal_source = signal_source
+        self.signal_engine = SignalEngine()
         self.checkpointer = InMemorySaver()
         self.graph = self._compile()
 
@@ -73,6 +83,9 @@ class QueryWorkflow:
         builder.add_node("prepare_single_database", self._prepare_single_database)
         builder.add_node("execute_single_database", self._execute_single_database)
         builder.add_node("run_multi_database", self._run_multi_database)
+        builder.add_node("build_signal_batch", self._build_signal_batch)
+        builder.add_node("build_explanation_prompt", self._build_explanation_prompt)
+        builder.add_node("generate_explanation", self._generate_explanation)
         builder.add_edge(START, "preprocess")
         #8.27 LLM 决定的是“语义动作标签”；程序决定的是“这个标签对应哪条 execution path”。
         # LLM decision + deterministic orchestration：
@@ -91,7 +104,7 @@ class QueryWorkflow:
             },
         )
         builder.add_edge("respond_directly", END)
-        builder.add_edge("answer_qa", END)
+        builder.add_edge("answer_qa", "build_signal_batch")
         builder.add_conditional_edges(
             "retrieve_schema",
             self._after_retrieval,
@@ -110,7 +123,14 @@ class QueryWorkflow:
                 "execute_single_database": "execute_single_database",
             },
         )
-        builder.add_edge("execute_single_database", END)
+        builder.add_conditional_edges(
+            "execute_single_database",
+            lambda state: "build_signal_batch" if (state.get("execution_result") or {}).get("success") is True else "end",
+            {"build_signal_batch": "build_signal_batch", "end": END},
+        )
+        builder.add_edge("build_signal_batch", "build_explanation_prompt")
+        builder.add_edge("build_explanation_prompt", "generate_explanation")
+        builder.add_edge("generate_explanation", END)
         builder.add_conditional_edges(
             "run_multi_database",
             lambda state: "human_clarification" if state.get("clarification") else "end",
@@ -147,6 +167,9 @@ class QueryWorkflow:
                 "reason": decision.reason,
             })
         return {
+            **self._clear_explanation(),
+            "execution_result": None,
+            "result": {},
             "intent": {
                 "action": decision.action,
                 "confidence": decision.confidence,
@@ -175,21 +198,132 @@ class QueryWorkflow:
         }
 
     def _answer_qa(self, state: QueryState) -> dict[str, Any]:
-        contexts = [
-            item for item in (
-                state.get("short_term_context", ""),
-                state.get("recent_result_context", ""),
-                state.get("analysis_context", ""),
-            ) if item
-        ]
-        answer = self.response_generator.answer_qa(state["query"], "\n".join(contexts))
+        answer = unavailable_explanation("NO_SIGNAL_BATCH")
         result = ResultBuilder.qa(
             state["task_id"], answer, state["intent"], state.get("analysis_sources") or []
         )
         return {
+            **self._clear_explanation(),
+            "execution_result": None,
             "workflow_mode": "qa",
             "result": result.model_dump(mode="json"),
         }
+
+    @staticmethod
+    def _clear_explanation() -> dict[str, Any]:
+        # Derived artifacts are always rebuilt. A caller/checkpoint package
+        # cannot bypass SignalEngine in the official Graph path.
+        return {"signal_batch": None, "prompt_package": None, "explanation_response": None,
+                "explanation_prompt_package": None, "explanation_task_id": None,
+                "explanation_for_query": None}
+
+    @staticmethod
+    def _explanation_failure(code: str) -> dict[str, Any]:
+        return {"prompt_package": None,
+                "explanation_response": unavailable_explanation(code).model_dump(mode="json")}
+
+    @staticmethod
+    def _execution_payload(execution: SqlExecution) -> dict[str, Any]:
+        """Detach the verified execution for Table/state, never for the prompt."""
+        contract = execution.result_contract
+        return {
+            "sql": execution.sql, "success": execution.success,
+            "columns": list(execution.columns), "rows": deepcopy(execution.rows),
+            "error": execution.error,
+            "result_contract": contract.model_dump(mode="json") if contract is not None else None,
+            "result_id": execution.result_id or (contract.result_id if contract is not None else None),
+        }
+
+    def _build_signal_batch(self, state: QueryState) -> dict[str, Any]:
+        """Obtain already computed Signals from a configured trusted source.
+
+        The source receives only invocation identity, including an execution
+        fingerprint. Selection, declarations and all business calculations
+        belong to its upstream producer, not to this Graph or SignalEngine.
+        """
+        update = self._clear_explanation()
+        source = getattr(self, "signal_source", None)
+        if source is None:
+            return {**update, **self._explanation_failure("NO_SIGNAL_BATCH")}
+        try:
+            route = (state.get("result") or {}).get("route")
+            execution = state.get("execution_result") if route == "database_query" else None
+            if route == "database_query" and (not execution or execution.get("success") is not True):
+                return {**update, **self._explanation_failure("EXECUTION_UNAVAILABLE")}
+            request = SignalRequest(
+                task_id=state["task_id"], query=state["query"], session_id=state.get("session_id", ""),
+                user_id=(state.get("access_scope") or {}).get("user_id"), route=route,
+                execution_result_id=execution.get("result_id") if execution is not None else None,
+                execution_digest=execution_digest(execution) if execution is not None else None,
+            )
+        except Exception:
+            return {**update, **self._explanation_failure("INVALID_SIGNAL_DELIVERY")}
+        try:
+            delivery = source(request)
+        except Exception:
+            # The externally configured delivery boundary must not discard a
+            # successful table or expose exception text as business evidence.
+            return {**update, **self._explanation_failure("SIGNAL_DELIVERY_FAILED")}
+        if delivery is None:
+            return {**update, **self._explanation_failure("NO_SIGNAL_BATCH")}
+        try:
+            signals = resolve_signals(delivery, request)
+        except Exception:
+            return {**update, **self._explanation_failure("INVALID_SIGNAL_DELIVERY")}
+        try:
+            batch = getattr(self, "signal_engine", SignalEngine()).build(signals)
+            # Revalidation also catches a malformed custom Engine dependency.
+            batch = SignalBatch.model_validate_json(batch.model_dump_json())
+        except Exception:
+            return {**update, **self._explanation_failure("INVALID_SIGNAL_BATCH")}
+        return {**update, "signal_batch": batch.model_dump(mode="json")}
+
+    def _build_explanation_prompt(self, state: QueryState) -> dict[str, Any]:
+        raw_batch = state.get("signal_batch")
+        if raw_batch is None:
+            return {"prompt_package": None}
+        try:
+            batch = SignalBatch.model_validate_json(json.dumps(raw_batch, allow_nan=False))
+            context = build_explanation_context(batch)
+            package = build_prompt_package(context, question=state["query"])
+        except Exception:
+            return self._explanation_failure("PROMPT_BUILD_FAILED")
+        return {"prompt_package": package.model_dump(mode="json"), "explanation_response": None}
+
+    def _generate_explanation(self, state: QueryState) -> dict[str, Any]:
+        """Explain only this run's projected package, then attach to Table UI."""
+        raw_package = state.get("prompt_package")
+        if raw_package is None:
+            raw_response = state.get("explanation_response")
+            try:
+                response = (ExplanationResponse.model_validate_json(json.dumps(raw_response, allow_nan=False))
+                            if raw_response is not None else unavailable_explanation("NO_SIGNAL_BATCH"))
+                if response.generation_status != "unavailable":
+                    response = unavailable_explanation("NO_SIGNAL_BATCH")
+            except (ValueError, TypeError):
+                response = unavailable_explanation("NO_SIGNAL_BATCH")
+        else:
+            try:
+                package = PromptPackage.model_validate_json(json.dumps(raw_package, allow_nan=False))
+            except (ValueError, TypeError):
+                response = unavailable_explanation("INVALID_PROMPT_PACKAGE")
+            else:
+                try:
+                    response = (self.response_generator.answer_qa(package)
+                                if (state.get("result") or {}).get("route") == "data_qa"
+                                else self.response_generator.finalize(package))
+                except Exception:
+                    response = unavailable_explanation("LLM_CALL_FAILED", generation_status="failed", package=package)
+                validation = validate_response(response, package)
+                response = (validation.validated_response if validation.status == "validated"
+                            else unavailable_explanation("RESPONSE_VALIDATION_FAILED",
+                                                         generation_status="validation_failed", package=package))
+        log = list(state.get("execution_log") or [])
+        log.append({"stage": "result_explanation", "success": response.generation_status == "generated",
+                    "codes": list(response.diagnostic_codes)})
+        result = ResultBuilder.with_explanation(state["result"], response, log)
+        return {"explanation_response": response.model_dump(mode="json"),
+                "execution_log": log, "result": result.model_dump(mode="json")}
 
     # preprocess 写入 State["standalone_query"]，retrieve_schema 再读取它（8.27）。
     # _retrieve_schema()：把“用户想找什么”变成“数据库里真正相关的 Schema 结构”。
@@ -396,25 +530,17 @@ class QueryWorkflow:
         }
         if not execution.success:
             result = ResultBuilder.failed(state, execution, log)
+            response = unavailable_explanation("EXECUTION_UNAVAILABLE")
+            result = result.model_copy(update={"explanation": response})
             if contract_error:
                 result.message = "查询结果契约校验失败"
-            return {"execution_log": log, "tool_calls": [call], "result": result.model_dump(mode="json")}
-        try:
-            final = self.response_generator.finalize(
-                state["standalone_query"], execution, state["schema_context"],
-                state.get("analysis_context", ""),
-            )
-        except PipelineStageError as exc:
-            # 结果说明失败时仍保留已成功执行的查询结果。
-            log.append({"stage": exc.stage, "success": False, "error": exc.message})
-            final = {
-                "valid": True,
-                "reason": f"{exc.stage}失败",
-                "title": "查询结果（文字说明生成失败）",
-                "analysis": f"SQL已成功执行，但{exc.stage}失败：{exc.message}",
-            }
+            return {**self._clear_explanation(), "execution_result": self._execution_payload(execution),
+                    "explanation_response": response.model_dump(mode="json"),
+                    "execution_log": log, "tool_calls": [call], "result": result.model_dump(mode="json")}
+        final = unavailable_explanation("NO_SIGNAL_BATCH")
         result = ResultBuilder.completed(state, [execution], execution, final, [call], log)
-        return {"execution_log": log, "tool_calls": [call], "result": result.model_dump(mode="json")}
+        return {**self._clear_explanation(), "execution_result": self._execution_payload(execution),
+                "execution_log": log, "tool_calls": [call], "result": result.model_dump(mode="json")}
 
     def _run_multi_database(self, state: QueryState) -> dict[str, Any]:
         """返回尚未实现的多数据库查询结果。"""
@@ -424,4 +550,8 @@ class QueryWorkflow:
             error="当前仅支持单库直接查询；多库 Handoff 尚未启用。",
         )
         result = ResultBuilder.failed(state, failure, [])
-        return {"workflow_mode": "multi_database_pending", "result": result.model_dump(mode="json")}
+        response = unavailable_explanation("EXECUTION_UNAVAILABLE")
+        result = result.model_copy(update={"explanation": response})
+        return {**self._clear_explanation(), "execution_result": self._execution_payload(failure),
+                "explanation_response": response.model_dump(mode="json"),
+                "workflow_mode": "multi_database_pending", "result": result.model_dump(mode="json")}

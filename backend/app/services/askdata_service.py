@@ -13,6 +13,7 @@ from ..models import QueryResult
 from ..retrieval import SchemaIndex
 from ..security import AccessController
 from ..workflows.query_graph import QueryWorkflow
+from ..workflows.signal_delivery import SignalSource
 from .memory_store import MemoryStore
 from .session_context import SessionContext
 
@@ -24,6 +25,8 @@ class AskDataService:
         self,
         model_client: ModelClient | None = None,
         schema_index: SchemaIndex | None = None,
+        *,
+        signal_source: SignalSource | None = None,
     ) -> None:
         self.model_client = model_client or ModelClient(settings)
         self.schema_index = schema_index or SchemaIndex(self.model_client, settings)
@@ -31,7 +34,9 @@ class AskDataService:
         self.access_controller = AccessController()
         self.context = SessionContext(self.model_client, self.config)
         self.memories = MemoryStore(limit=self.config.max_saved_memories)
-        self.workflow = QueryWorkflow(self.model_client, self.schema_index, self.config)
+        self.workflow = QueryWorkflow(
+            self.model_client, self.schema_index, self.config, signal_source=signal_source,
+        )
         self.tasks = self.context.tasks
         self.session_tasks = self.context.session_tasks
 
