@@ -82,6 +82,22 @@ npm run dev
 
 ## 使用方法
 
+### Phase 5 固定 Demo
+
+在后端目录运行 ` .\.venv\Scripts\python.exe run_demo.py --llm live`（替代 `run.py`），前端启动方式不变。
+页面提供三个固定问题：`8月各区域目标完成率？`、`哪个区域销售下降？`、`哪个产品贡献最高？`。
+使用管理员演示账号，以便读取 S2 所需的历史订单。固定期间为 2026 年 8 月，S2 对比 7 月，销售口径为已支付订单。
+
+Demo 使用已有 CSV、DuckDB、Semantic Layer、S1/S2/S3、SignalEngine 和解释流程，固定 SQL 与显式业务声明仅在此入口装配。
+原 `run.py` 保持通用问数流程；它尚未配置生产 `SignalSource`，不会自动生成这些业务信号。
+
+无有效模型配置时，可用 ` .\.venv\Scripts\python.exe run_demo.py --llm fixture` 验证展示链路。
+fixture 只替代模型的展示选项响应，页面会明确标注“未调用真实 LLM”；计算与解释校验仍使用原实现。
+故障演示可追加 `--failure no-signal`、`--failure llm` 或 `--failure validator`，重启后端后重新查询。
+这些开关仅存在于独立 Demo 启动进程，不能通过普通 API 请求启用。
+
+详细验收与截图见 [Phase 5.0 Demo Integration Report](learning_report/askdata_phase5_0_demo_integration_report.md)。
+
 使用内置账号登录：
 
 - 管理员：`admin` / `admin123`

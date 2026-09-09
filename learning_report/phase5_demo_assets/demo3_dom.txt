@@ -1,0 +1,288 @@
+- complementary:
+  - generic: A
+  - strong: AskData
+  - generic: AI 数据分析
+  - button "＋ 新建对话":
+    - generic: ＋
+    - text: 新建对话
+  - navigation "对话历史":
+    - paragraph: 今天
+    - button "◌ 哪个产品贡献最高？ 1 轮对话":
+      - generic: ◌
+      - strong: 哪个产品贡献最高？
+      - generic: 1 轮对话
+    - button "◌ 哪个区域销售下降？ 1 轮对话":
+      - generic: ◌
+      - strong: 哪个区域销售下降？
+      - generic: 1 轮对话
+    - button "◌ 8月各区域目标完成率？ 1 轮对话":
+      - generic: ◌
+      - strong: 8月各区域目标完成率？
+      - generic: 1 轮对话
+  - generic: 系
+  - strong: 系统管理员
+  - generic: 全部数据权限
+  - button "退出"
+- main:
+  - strong: 哪个产品贡献最高？
+  - generic: 自然语言问数
+  - generic: 固定 Demo 模式
+  - article:
+    - generic: 你
+    - text: 你
+    - paragraph: 哪个产品贡献最高？
+    - generic: A
+    - generic: AskData
+    - strong: 查询完成
+    - generic: 固定 Demo 目录
+    - generic: 本轮独立查询
+    - generic: 哪个产品贡献最高？（2026-08，已支付订单，全部分组）
+    - strong: 本次查询口径
+    - generic: ✓ 已确认
+    - generic: 数据表
+    - strong: 当前订单明细
+    - generic: 指标
+    - strong: 查询结果指标
+    - generic: 维度
+    - strong: product_id、sales_amount
+    - generic: 时间
+    - strong: 2026-08 · fixture 验证模式（未调用真实 LLM）
+    - region "表格查询结果":
+      - generic: ▦
+      - strong: 全部产品销售贡献 · fixture
+      - generic: 12 行 · 刚刚更新
+      - button "SQL"
+      - button "保存"
+      - generic: ⇩
+      - text: 导出 Excel
+      - code: SELECT product_id, SUM(paid_amount) AS sales_amount FROM orders_current WHERE order_date >= '2026-08-01' AND order_date < '2026-09-01' AND status = '已支付' GROUP BY product_id ORDER BY sales_amount DESC, product_id
+      - table:
+        - rowgroup:
+          - row "product_id sales_amount":
+            - columnheader "product_id"
+            - columnheader "sales_amount"
+        - rowgroup:
+          - row "102 1,725,561.53":
+            - cell "102"
+            - cell "1,725,561.53"
+          - row "106 1,723,739.46":
+            - cell "106"
+            - cell "1,723,739.46"
+          - row "104 1,655,275.45":
+            - cell "104"
+            - cell "1,655,275.45"
+          - row "109 1,614,431.72":
+            - cell "109"
+            - cell "1,614,431.72"
+          - row "107 1,524,895.54":
+            - cell "107"
+            - cell "1,524,895.54"
+          - row "111 1,506,097.19":
+            - cell "111"
+            - cell "1,506,097.19"
+          - row "112 1,331,085.83":
+            - cell "112"
+            - cell "1,331,085.83"
+          - row "101 1,188,751.56":
+            - cell "101"
+            - cell "1,188,751.56"
+          - row "108 1,089,269.12":
+            - cell "108"
+            - cell "1,089,269.12"
+          - row "103 1,078,189.55":
+            - cell "103"
+            - cell "1,078,189.55"
+      - text: 每页
+      - combobox "每页显示数量":
+        - option "10" [selected]
+        - option "20"
+        - option "50"
+      - text: 行
+      - generic: 第 1 / 2 页
+      - button "上一页" [disabled]: ‹
+      - button "下一页": ›
+    - region "业务分析":
+      - strong: 业务分析
+      - generic: Business Signals · 12 条
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 101"
+        - generic: 产品贡献率
+        - strong: ≈7.59%
+        - generic: "computed_value · contribution_rate: 0.075916718850 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 102"
+        - generic: 产品贡献率
+        - strong: ≈11.02%
+        - generic: "computed_value · contribution_rate: 0.110198778230 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 103"
+        - generic: 产品贡献率
+        - strong: ≈6.89%
+        - generic: "computed_value · contribution_rate: 0.068855945757 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 104"
+        - generic: 产品贡献率
+        - strong: ≈10.57%
+        - generic: "computed_value · contribution_rate: 0.105710129168 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 105"
+        - generic: 产品贡献率
+        - strong: ≈5.36%
+        - generic: "computed_value · contribution_rate: 0.053566573021 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 106"
+        - generic: 产品贡献率
+        - strong: ≈11.01%
+        - generic: "computed_value · contribution_rate: 0.110082416174 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 107"
+        - generic: 产品贡献率
+        - strong: ≈9.74%
+        - generic: "computed_value · contribution_rate: 0.097383734231 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 108"
+        - generic: 产品贡献率
+        - strong: ≈6.96%
+        - generic: "computed_value · contribution_rate: 0.069563515471 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 109"
+        - generic: 产品贡献率
+        - strong: ≈10.31%
+        - generic: "computed_value · contribution_rate: 0.103101743975 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 110"
+        - generic: 产品贡献率
+        - strong: ≈2.44%
+        - generic: "computed_value · contribution_rate: 0.024430671832 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 111"
+        - generic: 产品贡献率
+        - strong: ≈9.62%
+        - generic: "computed_value · contribution_rate: 0.096183223460 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S3 · 产品贡献
+        - generic: computed
+        - generic: product_contribution
+        - paragraph:
+          - generic: business_key
+          - text: "product_id: 112"
+        - generic: 产品贡献率
+        - strong: ≈8.5%
+        - generic: "computed_value · contribution_rate: 0.085006549830 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - button "收起信号" [expanded] [active]
+      - region "业务解释":
+        - strong: 解释
+        - generic: generated
+        - paragraph: "产品贡献率 产品: 101 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.075916718850\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 102 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.110198778230\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 103 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.068855945757\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 104 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.105710129168\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 105 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.053566573021\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 106 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.110082416174\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 107 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.097383734231\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 108 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.069563515471\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 109 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.103101743975\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 产品贡献率 产品: 110 分项 期间: [\"2026-08-01\", \"2026-09-01\") 总额 期间: [\"2026-08-01\", \"2026-09-01\") 贡献率: \"0.024430671832\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 分项 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 分项 单位倍率: \"1\" 总额 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 总额 单位倍率: \"1\" 解释限制: 本次引用仅在当前输入内有效。 上游分区校验使用了已批准的相对容差。 输入数值为近似值。 已提供的比例记录了运算舍入。 本次仅展示部分结果，另有 2 条可展示记录未展开。"
+  - textbox "向数据提问…"
+  - generic: 问数 0 个字段 · 分析 0 张结果表
+  - button "↑" [disabled]
+  - generic: 模型可能产生偏差，缺少关键业务口径时会在对话中继续询问。
+- complementary:
+  - paragraph: CONTEXT CONTROL
+  - heading "本次上下文" [level=2]
+  - button "清空"
+  - strong: 查询字段
+  - generic: 用于生成 SQL
+  - emphasis: 0 个
+  - generic: ＋
+  - strong: 拖入字段
+  - strong: 参考结果
+  - generic: 用于综合分析
+  - emphasis: 0 张
+  - generic: ＋
+  - strong: 拖入已保存结果
+  - strong: 字段与结果
+  - generic: 拖拽或双击添加
+  - paragraph: 字段 · 最多 12 个
+  - generic: 查询后可收藏关键字段
+  - paragraph: 结果表 · 最多 8 张
+  - button "▦ 本月各地区销售额统计 4 行 · 查询本月各地区销售额 ⋮⋮":
+    - generic: ▦
+    - strong: 本月各地区销售额统计
+    - generic: 4 行 · 查询本月各地区销售额
+    - emphasis: ⋮⋮
+  - button "▦ 本月各地区销售额 4 行 · 查询本月各地区销售额 ⋮⋮":
+    - generic: ▦
+    - strong: 本月各地区销售额
+    - generic: 4 行 · 查询本月各地区销售额
+    - emphasis: ⋮⋮

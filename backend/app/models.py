@@ -5,6 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from .api.signal_presentation import BusinessSignalDisplay
 from .querying.explanation.response_models import ExplanationResponse
 
 
@@ -75,6 +76,7 @@ class QueryResult(BaseModel):
     rows: list[dict[str, Any]] = []
     analysis: str | None = None
     explanation: ExplanationResponse | None = None
+    business_signals: list[BusinessSignalDisplay] = Field(default_factory=list)
     saved: bool = False
     route_reason: str | None = None
     retrieval: dict[str, Any] | None = None

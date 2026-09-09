@@ -321,7 +321,7 @@ class QueryWorkflow:
         log = list(state.get("execution_log") or [])
         log.append({"stage": "result_explanation", "success": response.generation_status == "generated",
                     "codes": list(response.diagnostic_codes)})
-        result = ResultBuilder.with_explanation(state["result"], response, log)
+        result = ResultBuilder.with_explanation(state["result"], response, log, state.get("signal_batch"))
         return {"explanation_response": response.model_dump(mode="json"),
                 "execution_log": log, "result": result.model_dump(mode="json")}
 

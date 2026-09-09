@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, ref } from "vue"
 import { api } from "./api"
 import ResultTableCard from "./components/ResultTableCard.vue"
+import BusinessAnalysis from "./components/BusinessAnalysis.vue"
 import type { AuthUser, QueryResult, SavedMemory, SchemaField, SchemaTable, WorkspaceConfig } from "./types"
 
 interface ConversationTurn {
@@ -28,7 +29,7 @@ interface HistoricalResultTable {
 
 const SAVED_TABLE_LIMIT = 8
 const FIELD_LIBRARY_LIMIT = 12
-const prompts = ["查询本月各地区销售额", "按客户等级统计本月销售额", "对比本月各地区销售额和销售目标"]
+const prompts = ["8月各区域目标完成率？", "哪个区域销售下降？", "哪个产品贡献最高？"]
 const input = ref("")
 const loading = ref(false)
 const pendingQuery = ref("")
@@ -509,7 +510,7 @@ function clarificationHint(result: QueryResult) {
           <span>自然语言问数</span>
         </div>
         <button class="config-trigger" @click="rightOpen = !rightOpen">上下文设置</button>
-        <span class="model-state"><i></i> 智能确认模式</span>
+        <span class="model-state"><i></i> {{ activeConversation?.turns.at(-1)?.result.workflow_mode === 'phase5_demo_catalog' ? '固定 Demo 模式' : '智能确认模式' }}</span>
       </header>
 
       <section ref="conversationScroll" class="conversation-scroll">
@@ -520,7 +521,7 @@ function clarificationHint(result: QueryResult) {
             <span class="welcome-mark">✦</span>
             <p class="kicker">ASKDATA STUDIO</p>
             <h1>想从数据里了解什么？</h1>
-            <p>查询结果会以清晰的表格卡片展示，并支持分页和Excel导出。</p>
+            <p>查看 SQL 结果、业务信号和解释，展开摘要追溯数据来源。</p>
             <div class="prompt-list">
               <button v-for="prompt in prompts" :key="prompt" @click="submit(prompt)">
                 <span>↗</span>{{ prompt }}
@@ -542,7 +543,7 @@ function clarificationHint(result: QueryResult) {
                 <div class="answer-heading" :class="{ 'qa-heading': turn.result.route !== 'database_query' }">
                   <div><small>AskData</small><strong v-if="turn.result.route === 'database_query'">{{ turn.result.status === "failed" ? "处理失败" : turn.result.status === "waiting_clarification" ? "需要补充信息" : "查询完成" }}</strong></div>
                   <span v-if="turn.result.route === 'database_query' && turn.result.status === 'completed'">
-                    {{ turn.result.workflow_mode === "single_database_agent" ? "单库智能体" : "多库流程" }}
+                    {{ turn.result.workflow_mode === "phase5_demo_catalog" ? "固定 Demo 目录" : turn.result.workflow_mode === "single_database_agent" ? "单库智能体" : "多库流程" }}
                   </span>
                 </div>
 
@@ -604,12 +605,14 @@ function clarificationHint(result: QueryResult) {
                   </template>
                 </ResultTableCard>
 
-                <div
-                  v-if="turn.result.route === 'database_query' && turn.result.analysis && turn.result.status !== 'waiting_clarification'"
-                  class="result-analysis"
-                >
-                  <strong>结果说明</strong>
-                  <p>{{ turn.result.analysis }}</p>
+                <BusinessAnalysis
+                  v-if="turn.result.route === 'database_query' && turn.result.status === 'completed'"
+                  :signals="turn.result.business_signals"
+                  :explanation="turn.result.explanation"
+                />
+                <div v-if="turn.result.route === 'database_query' && turn.result.status === 'failed'" class="result-analysis" role="alert">
+                  <strong>查询未完成</strong>
+                  <p>{{ turn.result.analysis || turn.result.message }}</p>
                 </div>
               </div>
             </div>

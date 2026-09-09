@@ -126,6 +126,8 @@ export interface QueryResult {
   columns: string[]
   rows: Record<string, string | number | null>[]
   analysis: string | null
+  explanation?: ExplanationResponse | null
+  business_signals?: BusinessSignalSummary[]
   saved: boolean
   result_title?: string | null
   standalone_query?: string | null
@@ -145,6 +147,57 @@ export interface QueryResult {
   tool_calls?: CoderToolCall[]
   analysis_sources?: AnalysisSource[]
   workflow_mode?: "qa" | "single_database_fast_path" | "multi_database_handoff" | "langgraph_hitl" | string | null
+}
+
+export type SignalStatus = "computed" | "undefined" | "insufficient_evidence" | "incompatible_context" | "unsupported"
+export type FormulaId = "attainment_rate" | "absolute_change" | "change_rate" | "contribution_rate"
+
+export interface BusinessKey {
+  components: { domain_id: string; component_id: string; value_type: "string" | "integer"; raw_value: string | number; normalized_value: string | number }[]
+  periods: { context_role: string; period: { domain_id: string; calendar: string; precision: string; lower: string; upper: string; lower_inclusive: boolean; upper_inclusive: boolean } }[]
+}
+
+export interface ComputationResult {
+  status: SignalStatus
+  value: string | null
+  unit_id: string | null
+  formula_id: FormulaId
+  formula_version: string
+  input_evidence_ids: string[]
+  numeric_quality: { source_fidelity: string; arithmetic_rounding: string }
+  reason_code: string | null
+}
+
+export interface SignalEvidenceSummary {
+  evidence_id: string
+  context_role: string
+  result_id: string
+  column_id: string | null
+  row_index: number | null
+  source_fields: { database: string | null; table: string; field: string | null }[] | null
+  business_key: BusinessKey | null
+  formula_refs: { formula_id: FormulaId; formula_version: string }[]
+}
+
+export interface BusinessSignalSummary {
+  signal_index: number
+  signal_type: "monthly_regional_target_attainment" | "regional_sales_change" | "product_contribution"
+  status: SignalStatus
+  business_key: BusinessKey | null
+  computed_value: Partial<Record<FormulaId, ComputationResult>>
+  evidence_summary: SignalEvidenceSummary[]
+}
+
+// The backend owns the full response contract; this view consumes only its
+// presentation status and already validated text.
+export interface ExplanationResponse {
+  version: string
+  generation_status: "generated" | "unavailable" | "not_requested" | "failed" | "validation_failed"
+  presentation_coverage: "complete" | "partial" | "none"
+  source_signal_count: number
+  displayable_signal_indices: number[]
+  diagnostic_codes: string[]
+  text: string
 }
 
 export interface WorkspaceConfig {

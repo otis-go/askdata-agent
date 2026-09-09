@@ -1,0 +1,185 @@
+- complementary:
+  - generic: A
+  - strong: AskData
+  - generic: AI 数据分析
+  - button "＋ 新建对话":
+    - generic: ＋
+    - text: 新建对话
+  - navigation "对话历史":
+    - paragraph: 今天
+    - button "◌ 哪个区域销售下降？ 1 轮对话":
+      - generic: ◌
+      - strong: 哪个区域销售下降？
+      - generic: 1 轮对话
+    - button "◌ 8月各区域目标完成率？ 1 轮对话":
+      - generic: ◌
+      - strong: 8月各区域目标完成率？
+      - generic: 1 轮对话
+  - generic: 系
+  - strong: 系统管理员
+  - generic: 全部数据权限
+  - button "退出"
+- main:
+  - strong: 哪个区域销售下降？
+  - generic: 自然语言问数
+  - generic: 固定 Demo 模式
+  - article:
+    - generic: 你
+    - text: 你
+    - paragraph: 哪个区域销售下降？
+    - generic: A
+    - generic: AskData
+    - strong: 查询完成
+    - generic: 固定 Demo 目录
+    - generic: 本轮独立查询
+    - generic: 哪个区域销售下降？（2026-08 对比 2026-07，已支付订单，全部分组）
+    - strong: 本次查询口径
+    - generic: ✓ 已确认
+    - generic: 数据表
+    - strong: 当前订单明细、历史订单明细
+    - generic: 指标
+    - strong: 查询结果指标
+    - generic: 维度
+    - strong: region、sales_amount
+    - generic: 时间
+    - strong: 2026-08 对比 2026-07 · fixture 验证模式（未调用真实 LLM）
+    - region "表格查询结果":
+      - generic: ▦
+      - strong: 各区域销售变化 · fixture
+      - generic: 4 行 · 刚刚更新
+      - button "SQL"
+      - button "保存"
+      - generic: ⇩
+      - text: 导出 Excel
+      - code: SELECT region, SUM(paid_amount) AS sales_amount FROM orders_current WHERE order_date >= '2026-08-01' AND order_date < '2026-09-01' AND status = '已支付' GROUP BY region ORDER BY region
+      - table:
+        - rowgroup:
+          - row "region sales_amount":
+            - columnheader "region"
+            - columnheader "sales_amount"
+        - rowgroup:
+          - row "华东 4,292,183.75":
+            - cell "华东"
+            - cell "4,292,183.75"
+          - row "华北 3,379,043.36":
+            - cell "华北"
+            - cell "3,379,043.36"
+          - row "华南 3,513,112.52":
+            - cell "华南"
+            - cell "3,513,112.52"
+          - row "西南 4,474,287.06":
+            - cell "西南"
+            - cell "4,474,287.06"
+      - text: 每页
+      - combobox "每页显示数量":
+        - option "10" [selected]
+        - option "20"
+        - option "50"
+      - text: 行
+      - generic: 第 1 / 1 页
+      - button "上一页" [disabled]: ‹
+      - button "下一页" [disabled]: ›
+    - region "业务分析":
+      - strong: 业务分析
+      - generic: Business Signals · 4 条
+      - article:
+        - strong: S2 · 销售变化
+        - generic: computed
+        - generic: regional_sales_change
+        - paragraph:
+          - generic: business_key
+          - text: "region: 华东"
+        - generic: 销售额变化
+        - strong: 524380.60 CNY
+        - generic: "computed_value · absolute_change: 524380.60 (CNY)"
+        - generic: 来源数值为近似值
+        - generic: 销售变化率
+        - strong: ≈13.92%
+        - generic: "computed_value · change_rate: 0.139174096715 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S2 · 销售变化
+        - generic: computed
+        - generic: regional_sales_change
+        - paragraph:
+          - generic: business_key
+          - text: "region: 华北"
+        - generic: 销售额变化
+        - strong: "-1333369.720000000 CNY"
+        - generic: "computed_value · absolute_change: -1333369.720000000 (CNY)"
+        - generic: 来源数值为近似值
+        - generic: 销售变化率
+        - strong: ≈-28.29%
+        - generic: "computed_value · change_rate: -0.282948395517 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S2 · 销售变化
+        - generic: computed
+        - generic: regional_sales_change
+        - paragraph:
+          - generic: business_key
+          - text: "region: 华南"
+        - generic: 销售额变化
+        - strong: "-110523.4500000002 CNY"
+        - generic: "computed_value · absolute_change: -110523.4500000002 (CNY)"
+        - generic: 来源数值为近似值
+        - generic: 销售变化率
+        - strong: ≈-3.05%
+        - generic: "computed_value · change_rate: -0.030500704518 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S2 · 销售变化
+        - generic: computed
+        - generic: regional_sales_change
+        - paragraph:
+          - generic: business_key
+          - text: "region: 西南"
+        - generic: 销售额变化
+        - strong: 433078.6800000001 CNY
+        - generic: "computed_value · absolute_change: 433078.6800000001 (CNY)"
+        - generic: 来源数值为近似值
+        - generic: 销售变化率
+        - strong: ≈10.72%
+        - generic: "computed_value · change_rate: 0.107165639402 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - region "业务解释":
+        - strong: 解释
+        - generic: generated
+        - paragraph: "区域销售变化 区域: \"华东\" 当期销售 期间: [\"2026-08-01\", \"2026-09-01\") 基期销售 期间: [\"2026-07-01\", \"2026-08-01\") 销售变化额: \"524380.60\"; 单位: \"CNY\"; 来源精度: 近似; 运算精度: 精确 销售变化率: \"0.139174096715\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 当期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 当期销售 单位倍率: \"1\" 基期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 基期销售 单位倍率: \"1\" 区域销售变化 区域: \"华北\" 当期销售 期间: [\"2026-08-01\", \"2026-09-01\") 基期销售 期间: [\"2026-07-01\", \"2026-08-01\") 销售变化额: \"-1333369.720000000\"; 单位: \"CNY\"; 来源精度: 近似; 运算精度: 精确 销售变化率: \"-0.282948395517\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 当期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 当期销售 单位倍率: \"1\" 基期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 基期销售 单位倍率: \"1\" 区域销售变化 区域: \"华南\" 当期销售 期间: [\"2026-08-01\", \"2026-09-01\") 基期销售 期间: [\"2026-07-01\", \"2026-08-01\") 销售变化额: \"-110523.4500000002\"; 单位: \"CNY\"; 来源精度: 近似; 运算精度: 精确 销售变化率: \"-0.030500704518\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 当期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 当期销售 单位倍率: \"1\" 基期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 基期销售 单位倍率: \"1\" 区域销售变化 区域: \"西南\" 当期销售 期间: [\"2026-08-01\", \"2026-09-01\") 基期销售 期间: [\"2026-07-01\", \"2026-08-01\") 销售变化额: \"433078.6800000001\"; 单位: \"CNY\"; 来源精度: 近似; 运算精度: 精确 销售变化率: \"0.107165639402\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 当期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 当期销售 单位倍率: \"1\" 基期销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 基期销售 单位倍率: \"1\" 解释限制: 本次引用仅在当前输入内有效。 输入数值为近似值。 已提供的比例记录了运算舍入。"
+  - textbox "向数据提问…"
+  - generic: 问数 0 个字段 · 分析 0 张结果表
+  - button "↑" [disabled]
+  - generic: 模型可能产生偏差，缺少关键业务口径时会在对话中继续询问。
+- complementary:
+  - paragraph: CONTEXT CONTROL
+  - heading "本次上下文" [level=2]
+  - button "清空"
+  - strong: 查询字段
+  - generic: 用于生成 SQL
+  - emphasis: 0 个
+  - generic: ＋
+  - strong: 拖入字段
+  - strong: 参考结果
+  - generic: 用于综合分析
+  - emphasis: 0 张
+  - generic: ＋
+  - strong: 拖入已保存结果
+  - strong: 字段与结果
+  - generic: 拖拽或双击添加
+  - paragraph: 字段 · 最多 12 个
+  - generic: 查询后可收藏关键字段
+  - paragraph: 结果表 · 最多 8 张
+  - button "▦ 本月各地区销售额统计 4 行 · 查询本月各地区销售额 ⋮⋮":
+    - generic: ▦
+    - strong: 本月各地区销售额统计
+    - generic: 4 行 · 查询本月各地区销售额
+    - emphasis: ⋮⋮
+  - button "▦ 本月各地区销售额 4 行 · 查询本月各地区销售额 ⋮⋮":
+    - generic: ▦
+    - strong: 本月各地区销售额
+    - generic: 4 行 · 查询本月各地区销售额
+    - emphasis: ⋮⋮

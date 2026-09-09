@@ -1,0 +1,190 @@
+- complementary:
+  - generic: A
+  - strong: AskData
+  - generic: AI 数据分析
+  - button "＋ 新建对话":
+    - generic: ＋
+    - text: 新建对话
+  - navigation "对话历史":
+    - paragraph: 今天
+    - button "◌ 哪个产品贡献最高？ 1 轮对话":
+      - generic: ◌
+      - strong: 哪个产品贡献最高？
+      - generic: 1 轮对话
+    - button "◌ 哪个区域销售下降？ 1 轮对话":
+      - generic: ◌
+      - strong: 哪个区域销售下降？
+      - generic: 1 轮对话
+    - button "◌ 8月各区域目标完成率？ 1 轮对话":
+      - generic: ◌
+      - strong: 8月各区域目标完成率？
+      - generic: 1 轮对话
+  - generic: 系
+  - strong: 系统管理员
+  - generic: 全部数据权限
+  - button "退出"
+- main:
+  - strong: 8月各区域目标完成率？
+  - generic: 自然语言问数
+  - generic: 固定 Demo 模式
+  - article:
+    - generic: 你
+    - text: 你
+    - paragraph: 8月各区域目标完成率？
+    - generic: A
+    - generic: AskData
+    - strong: 查询完成
+    - generic: 固定 Demo 目录
+    - generic: 本轮独立查询
+    - generic: 8月各区域目标完成率？（2026-08，已支付订单，全部分组）
+    - strong: 本次查询口径
+    - generic: ✓ 已确认
+    - generic: 数据表
+    - strong: 当前订单明细、地区销售目标
+    - generic: 指标
+    - strong: 查询结果指标
+    - generic: 维度
+    - strong: region、sales_amount
+    - generic: 时间
+    - strong: 2026-08 · fixture 验证模式（未调用真实 LLM）
+    - region "表格查询结果":
+      - generic: ▦
+      - strong: 各区域目标完成率 · fixture
+      - generic: 4 行 · 刚刚更新
+      - button "SQL"
+      - button "保存"
+      - generic: ⇩
+      - text: 导出 Excel
+      - table:
+        - rowgroup:
+          - row "region sales_amount":
+            - columnheader "region"
+            - columnheader "sales_amount"
+        - rowgroup:
+          - row "华东 4,292,183.75":
+            - cell "华东"
+            - cell "4,292,183.75"
+          - row "华北 3,379,043.36":
+            - cell "华北"
+            - cell "3,379,043.36"
+          - row "华南 3,513,112.52":
+            - cell "华南"
+            - cell "3,513,112.52"
+          - row "西南 4,474,287.06":
+            - cell "西南"
+            - cell "4,474,287.06"
+      - text: 每页
+      - combobox "每页显示数量":
+        - option "10" [selected]
+        - option "20"
+        - option "50"
+      - text: 行
+      - generic: 第 1 / 1 页
+      - button "上一页" [disabled]: ‹
+      - button "下一页" [disabled]: ›
+    - region "业务分析":
+      - strong: 业务分析
+      - generic: Business Signals · 4 条
+      - article:
+        - strong: S1 · 目标完成率
+        - generic: computed
+        - generic: monthly_regional_target_attainment
+        - paragraph:
+          - generic: business_key
+          - text: "region: 华东"
+        - generic: 目标完成率
+        - strong: ≈195.1%
+        - generic: "computed_value · attainment_rate: 1.950992613636 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S1 · 目标完成率
+        - generic: computed
+        - generic: monthly_regional_target_attainment
+        - paragraph:
+          - generic: business_key
+          - text: "region: 华北"
+        - generic: 目标完成率
+        - strong: ≈211.19%
+        - generic: "computed_value · attainment_rate: 2.111902100000 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand" [active]
+        - strong: actual
+        - term: formula
+        - definition: attainment_rate v1
+        - term: operand 来源
+        - definition: askdata_mock.orders_current.paid_amount · column_1 · row 1
+        - term: result_id
+        - definition: 7f05ec4b-d52d-42fc-b910-dd1dfcf58a9e
+        - term: business key
+        - definition: "region: 华北"
+        - strong: target
+        - term: formula
+        - definition: attainment_rate v1
+        - term: operand 来源
+        - definition: askdata_mock.sales_targets.target_amount · column_1 · row 1
+        - term: result_id
+        - definition: 7cdbf8b0-7c89-4cd9-bd45-7ff5c56f04c3
+        - term: business key
+        - definition: "region: 华北"
+      - article:
+        - strong: S1 · 目标完成率
+        - generic: computed
+        - generic: monthly_regional_target_attainment
+        - paragraph:
+          - generic: business_key
+          - text: "region: 华南"
+        - generic: 目标完成率
+        - strong: ≈195.17%
+        - generic: "computed_value · attainment_rate: 1.951729177778 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - article:
+        - strong: S1 · 目标完成率
+        - generic: computed
+        - generic: monthly_regional_target_attainment
+        - paragraph:
+          - generic: business_key
+          - text: "region: 西南"
+        - generic: 目标完成率
+        - strong: ≈344.18%
+        - generic: "computed_value · attainment_rate: 3.441759276923 (ratio)"
+        - generic: 来源数值为近似值
+        - generic "Evidence 摘要 · 2 个 operand"
+      - region "业务解释":
+        - strong: 解释
+        - generic: generated
+        - paragraph: "目标达成率 区域: \"华东\" 实际销售 期间: [\"2026-08-01\", \"2026-09-01\") 目标 期间: [\"2026-08-01\", \"2026-09-01\") 目标达成率: \"1.950992613636\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 实际销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 实际销售 单位倍率: \"1\" 目标 单位倍率: \"1\" 目标达成率 区域: \"华北\" 实际销售 期间: [\"2026-08-01\", \"2026-09-01\") 目标 期间: [\"2026-08-01\", \"2026-09-01\") 目标达成率: \"2.111902100000\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 实际销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 实际销售 单位倍率: \"1\" 目标 单位倍率: \"1\" 目标达成率 区域: \"华南\" 实际销售 期间: [\"2026-08-01\", \"2026-09-01\") 目标 期间: [\"2026-08-01\", \"2026-09-01\") 目标达成率: \"1.951729177778\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 实际销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 实际销售 单位倍率: \"1\" 目标 单位倍率: \"1\" 目标达成率 区域: \"西南\" 实际销售 期间: [\"2026-08-01\", \"2026-09-01\") 目标 期间: [\"2026-08-01\", \"2026-09-01\") 目标达成率: \"3.441759276923\"; 单位: \"ratio\"; 来源精度: 近似; 运算精度: 已舍入 实际销售 筛选范围: \"payment-status\" = \"已支付\" (WHERE) 实际销售 单位倍率: \"1\" 目标 单位倍率: \"1\" 解释限制: 本次引用仅在当前输入内有效。 输入数值为近似值。 已提供的比例记录了运算舍入。"
+  - textbox "向数据提问…"
+  - generic: 问数 0 个字段 · 分析 0 张结果表
+  - button "↑" [disabled]
+  - generic: 模型可能产生偏差，缺少关键业务口径时会在对话中继续询问。
+- complementary:
+  - paragraph: CONTEXT CONTROL
+  - heading "本次上下文" [level=2]
+  - button "清空"
+  - strong: 查询字段
+  - generic: 用于生成 SQL
+  - emphasis: 0 个
+  - generic: ＋
+  - strong: 拖入字段
+  - strong: 参考结果
+  - generic: 用于综合分析
+  - emphasis: 0 张
+  - generic: ＋
+  - strong: 拖入已保存结果
+  - strong: 字段与结果
+  - generic: 拖拽或双击添加
+  - paragraph: 字段 · 最多 12 个
+  - generic: 查询后可收藏关键字段
+  - paragraph: 结果表 · 最多 8 张
+  - button "▦ 本月各地区销售额统计 4 行 · 查询本月各地区销售额 ⋮⋮":
+    - generic: ▦
+    - strong: 本月各地区销售额统计
+    - generic: 4 行 · 查询本月各地区销售额
+    - emphasis: ⋮⋮
+  - button "▦ 本月各地区销售额 4 行 · 查询本月各地区销售额 ⋮⋮":
+    - generic: ▦
+    - strong: 本月各地区销售额
+    - generic: 4 行 · 查询本月各地区销售额
+    - emphasis: ⋮⋮

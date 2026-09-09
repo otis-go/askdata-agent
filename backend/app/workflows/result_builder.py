@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..api.signal_presentation import present_business_signals
 from ..database import SCHEMA
 from ..models import Clarification, Interpretation, QueryResult
+from ..querying.business_signals.batch import SignalBatch
 from ..querying.explanation.response_models import ExplanationResponse
 from ..querying.models import SqlExecution
 
@@ -37,6 +39,7 @@ class ResultBuilder:
     @staticmethod
     def with_explanation(
         result: dict[str, Any], response: ExplanationResponse, log: list[dict[str, Any]],
+        signal_batch: SignalBatch | dict[str, Any] | None = None,
     ) -> QueryResult:
         """Attach a verified explanation without deriving facts from the table."""
         table_or_qa = QueryResult.model_validate(result)
@@ -50,6 +53,7 @@ class ResultBuilder:
         return table_or_qa.model_copy(update={
             "status": status, "message": message, "analysis": response.text,
             "explanation": response, "execution_log": log,
+            "business_signals": present_business_signals(signal_batch),
             "steps": [*table_or_qa.steps, "组织 SignalBatch 并生成独立解释状态"],
         })
 
